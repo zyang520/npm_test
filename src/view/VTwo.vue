@@ -4,6 +4,7 @@
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
                 <el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">创建应用</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true">上传应用</el-button>
                 <el-button type="primary" icon="el-icon-delete">删除</el-button>
             </el-row>
             <el-table
@@ -43,17 +44,39 @@
             </el-table>
         </div>
 
+        <el-dialog title="创建应用" :visible.sync="uploadDialogVisible">
+            <el-form :model="form">
+                <el-form-item label="应用名称" :label-width="formLabelWidth">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="上传配置文件" :label-width="formLabelWidth">
+                    <el-upload
+                            class="upload-demo"
+                            drag
+                            action="https://jsonplaceholder.typicode.com/posts/"
+                            multiple>
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                        <div class="el-upload__tip" slot="tip">只能上传.card文件，且不超过500kb</div>
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="uploadDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="uploadDialogVisible = false">确 定</el-button>
+            </div>
+        </el-dialog>
 
         <el-dialog title="创建应用" :visible.sync="createDialogVisible">
             <el-form :model="form">
                 <el-form-item label="应用名称" :label-width="formLabelWidth">
                     <el-input v-model="form.name" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="活动区域" :label-width="formLabelWidth">
-                    <el-select v-model="form.region" placeholder="请选择活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
-                    </el-select>
+                <el-form-item label="链名称" :label-width="formLabelWidth">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="组织编号" :label-width="formLabelWidth">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -74,9 +97,9 @@
         data() {
             return {
                 createDialogVisible: false,
+                uploadDialogVisible: false,
                 form: {
                     name: '',
-                    region: ''
                 },
                 formLabelWidth: '120px',
                 tableData: [{
