@@ -13,7 +13,7 @@
                     stripe
                     style="width: 100%">
                 <el-table-column
-                        prop="name"
+                        prop="appName"
                         label="应用名称"
                         width="180">
                 </el-table-column>
@@ -38,7 +38,7 @@
                         width="180">
                 </el-table-column>
                 <el-table-column
-                        prop="date"
+                        prop="createTime"
                         label="创建时间">
                 </el-table-column>
             </el-table>
@@ -98,28 +98,21 @@
             return {
                 createDialogVisible: false,
                 uploadDialogVisible: false,
+                bpi: false,
                 form: {
                     name: '',
                 },
                 formLabelWidth: '120px',
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '测试1',
-                    chain: 'chain.com'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    chain: 'chain.com'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    chain: 'chain.com'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    chain: 'chain.com'
-                }]
+                tableData: []
             }
+        },
+        mounted () {
+            axios
+                .get('/api/v1/app/list?a='+ Date())
+                .then(response => {
+                    console.log(response.data);
+                    this.tableData = response.data.data;
+                });
         }
     }
 </script>
