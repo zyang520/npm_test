@@ -20,7 +20,7 @@
 
           <div class="header-right">
               <div class="header-right">
-                  <el-dropdown >
+                  <el-dropdown   @command="handleLogout">
               <span class="el-dropdown-link">
                 欢迎您，杨志<i class="el-icon-arrow-down el-icon--right"></i>
               </span>
@@ -53,7 +53,21 @@
             };
         },
         methods: {
-
+            handleLogout(command){   //登录退出
+                if(command == 'logOut'){
+                    this.$http({
+                        method:'get',
+                        url:'/user/loginOut',
+                    }).then(res => {
+                        if(res.success == true){
+                            localStorage.removeItem('userName');
+                            localStorage.removeItem('accessToken');
+                            this.$router.push(this.$route.query.redirect || '/');
+                            window.location.reload();
+                        }
+                    });
+                }
+            }
         }
     }
 

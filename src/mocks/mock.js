@@ -14,6 +14,14 @@ Mock.mock('/user/login', function () {
     }
 });
 
+
+//登录退出
+Mock.mock('/user/loginOut', function () {
+    return {
+        'success' : true
+    }
+});
+
 // 查询链码列表
 Mock.mock('/vTwo/list', function () {
     return {
