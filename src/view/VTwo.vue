@@ -107,12 +107,24 @@
             }
         },
         mounted () {
-            axios
+            let self = this;
+            this.$http({
+                method:'get',
+                url:'/vTwo/list'
+
+            }).then(res => {
+                if(res.success == true){
+                    self.tableData = res.data;
+
+                }
+            });
+
+          /*  axios
                 .get('/api/v1/app/list?a='+ Date())
                 .then(response => {
                     console.log(response.data);
                     this.tableData = response.data.data;
-                });
+                });*/
         }
     }
 </script>
