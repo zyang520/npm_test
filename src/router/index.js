@@ -42,10 +42,7 @@ const routes = [
             },
             {
                 path: '/',
-                meta: {
-                    requireAuth: true
-                },
-                component: resolve => require(['@/view/vTwo.vue'], resolve)
+                redirect:'/myApp'
             }
         ]
     }

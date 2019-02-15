@@ -9,10 +9,10 @@
 
 
               <el-menu router :default-active="$route.path" class="el-menu-demo" mode="horizontal">
-                  <el-menu-item index="myApp">我的应用</el-menu-item>
-                  <el-menu-item index="dd">日志</el-menu-item>
-                  <el-menu-item  index="chainCodeList">链码列表</el-menu-item>
-                  <el-menu-item index="channelList">通道列表</el-menu-item>
+                  <el-menu-item index="/myApp">我的应用</el-menu-item>
+                  <el-menu-item index="/dd">日志</el-menu-item>
+                  <el-menu-item  index="/chainCodeList">链码列表</el-menu-item>
+                  <el-menu-item index="/channelList">通道列表</el-menu-item>
               </el-menu>
 
 
@@ -158,6 +158,16 @@
     color:#fff;
     outline:none;
   }
+
+
+
+    .el-menu--horizontal>.el-menu-item.is-active {
+        border-bottom: 2px solid #409EFF;
+        color: #303133;
+        background: #fff;
+        color: #333 !important;
+    }
+
 
   body.page-sidebar-right-show .header-right{margin-right:235px;}
 
