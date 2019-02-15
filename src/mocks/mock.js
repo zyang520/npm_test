@@ -3,7 +3,7 @@ import Mock from 'mockjs'
 
 
 //登录
-Mock.mock('/user/login', function () {
+Mock.mock('/demo/user/login', function () {
     return {
         'success' : true,
         'data': {
@@ -16,7 +16,7 @@ Mock.mock('/user/login', function () {
 
 
 //登录退出
-Mock.mock('/user/loginOut', function () {
+Mock.mock('/demo/user/loginOut', function () {
     return {
         'success' : true
     }

@@ -86,14 +86,14 @@ export default {
             });
 
             this.$http({
-                url:'/user/login',
+                url:'/demo/user/login',
             }).then(res => {
                 if(res.success){
                     self.fullscreenLoading = false;
                     localStorage.setItem('userName', res.data.userName);
                     localStorage.setItem('accessToken', res.data.token);
                     this.$store.commit(types.LOGIN,  res.data.token)
-                    this.$router.push(this.$route.query.redirect || '/');
+                    //this.$router.push(this.$route.query.redirect || '/');
                 }
             });
 

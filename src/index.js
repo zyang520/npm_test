@@ -14,9 +14,9 @@ import http from '@/js/http'
 Vue.use(http)
 
 // 如果是本地localhost环境，则启动mock，模拟真实数据
-if (/localhost/.test(location.href)) {
+/*if (/localhost/.test(location.href)) {*/
     require('@/mocks/mock')
-}
+/*}*/
 
 
 

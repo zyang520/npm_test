@@ -91,14 +91,22 @@ module.exports = {
     devServer: {
         contentBase: path.resolve(process.cwd(), `dist`),
         historyApiFallback: true, // 不跳转
+        host:'0.0.0.0',
         port: 8680,
         inline: true, // 实时刷新
         progress: true,
         compress: true, // Enable gzip compression for everything served
         overlay: true, // Shows a full-screen overlay in the browser
         stats: `errors-only`, // To show only errors in your bundle
-        open: true, // When open is enabled, the dev server will open the browser.
-        publicPath: `/`
+        open: false, // When open is enabled, the dev server will open the browser.
+        publicPath: `/`,
+        proxy: {
+            '/demo': {
+                target: 'http://192.168.1.121/',
+                changeOrigin: true,
+                pathRewrite: {'^/demo': '/'}
+            }
+        }
     }
 }
 
