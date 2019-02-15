@@ -93,6 +93,7 @@ module.exports = {
         historyApiFallback: true, // 不跳转
         host:'0.0.0.0',
         port: 8680,
+        disableHostCheck: true,
         inline: true, // 实时刷新
         progress: true,
         compress: true, // Enable gzip compression for everything served
