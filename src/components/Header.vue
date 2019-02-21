@@ -57,7 +57,7 @@
                 if(command == 'logOut'){
                     this.$http({
                         method:'get',
-                        url:'/user/loginOut',
+                        url:'/demo/user/loginOut',
                     }).then(res => {
                         if(res.success == true){
                             localStorage.removeItem('userName');
