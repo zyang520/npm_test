@@ -40,6 +40,14 @@ const routes = [
                 },
                 component: resolve => require(['@/view/ChannelList.vue'], resolve)
             },
+            ,{
+                path: 'appDetInfo',
+                name: 'appDetInfo',
+                meta: {
+                    requireAuth: true
+                },
+                component: resolve => require(['@/view/AppDetInfo.vue'], resolve)
+            },
             {
                 path: '/',
                 redirect:'/myApp'

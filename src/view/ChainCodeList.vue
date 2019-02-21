@@ -3,7 +3,7 @@
     <TitlePage title="我的应用/链码列表" desc=""></TitlePage>
     <div class="table-container">
       <el-table
-              :data="tableData"
+              :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
               border
               stripe
               style="width: 100%">
@@ -11,6 +11,7 @@
                 prop="name"
                 label="链码名称"
                 width="180">
+               
         </el-table-column>
         <el-table-column
                 prop="version"
@@ -27,7 +28,10 @@
         </el-table-column>
       </el-table>
 
-
+       <div class="block" style="margin-top:15px;float:right;">
+            <el-pagination align='center' @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[1,5,10,20]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="tableData.length">
+            </el-pagination>
+        </div>
 
     </div>
   </div>
@@ -42,6 +46,9 @@ export default {
     },
   data () {
     return {
+        currentPage: 1, // 当前页码
+        total: 20, // 总条数
+        pageSize: 10, // 每页的数据条数
         tableData: [{
             name: 'test1',
             version: 'v`',
@@ -99,7 +106,22 @@ export default {
             oper:'API访问'
         }]
     }
-  }
+    
+  },
+  methods: {
+         handleSizeChange(val) {
+            console.log(`每页 ${val} 条`);
+            this.currentPage = 1;
+            this.pageSize = val;
+        },
+        handleCurrentChange(val) {
+            console.log(`当前页: ${val}`);
+            this.currentPage = val;
+
+            
+        }
+        
+    }
 }
 </script>
 

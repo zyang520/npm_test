@@ -29,7 +29,7 @@ export default {
 </script>
 
 <style>
-    .page-container{width:100%;height:calc(100% - 66px )}
+    .page-container{width:100%;height:calc(100% - 66px );overflow-y:auto;}
 
 </style>
 

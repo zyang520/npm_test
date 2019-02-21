@@ -16,6 +16,9 @@
                         prop="appName"
                         label="应用名称"
                         width="180">
+                         <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="handleAppLink(scope.row)" >{{scope.row.appName}}</el-button>
+               </template>
                 </el-table-column>
                 <el-table-column
                         prop="chain"
@@ -125,7 +128,17 @@
                     console.log(response.data);
                     this.tableData = response.data.data;
                 });*/
-        }
+        },
+        methods: {
+             handleAppLink(row,id){
+           //  debugger;
+        console.log(row.ac_id);
+
+        this.$router.push({path:'/appDetInfo',query:{rowData : row}});
+
+        
+        }  
+        },
     }
 </script>
 
