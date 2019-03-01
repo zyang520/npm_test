@@ -113,12 +113,12 @@
             let self = this;
             this.$http({
                 method:'get',
-                url:'/vTwo/list'
+                url:'/app/list'
 
             }).then(res => {
-                if(res.success == true){
+                console.log(res);
+                if(res.code == 10000){
                     self.tableData = res.data;
-
                 }
             });
 

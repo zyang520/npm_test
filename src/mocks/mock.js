@@ -72,10 +72,3 @@ Mock.mock('/vTwo/list', function () {
         }]
     }
 });
-
-
-//调用防范
-/* this.$http.get('/robot/info').then(res=>{
-      //write your code  here
-        debugger;
-}).catch(error=>console.log(error));  */
