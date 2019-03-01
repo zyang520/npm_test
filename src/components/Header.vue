@@ -11,8 +11,7 @@
               <el-menu router :default-active="$route.path" class="el-menu-demo" mode="horizontal">
                   <el-menu-item index="/myApp">我的应用</el-menu-item>
                   <el-menu-item index="/dd">日志</el-menu-item>
-                  <el-menu-item  index="/chainCodeList">链码列表</el-menu-item>
-                  <el-menu-item index="/channelList">通道列表</el-menu-item>
+                  <el-menu-item  index="/chainCodeList">链码中心</el-menu-item>
               </el-menu>
 
 

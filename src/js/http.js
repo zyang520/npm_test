@@ -42,7 +42,7 @@ export function request(params) {
         headers.token = accessToken;
     }
     // axios post的data须转换为URLSearchParams后台才能接收到
-    const host = 'http://localhost:8081/';
+    const host = 'http://localhost:8081';
     return new Promise((resolve, reject) => {
         axios({
             method: params.method ? params.method : 'get',

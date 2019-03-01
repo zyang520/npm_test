@@ -16,29 +16,30 @@
                         prop="appName"
                         label="应用名称"
                         width="180">
-                         <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="handleAppLink(scope.row)" >{{scope.row.appName}}</el-button>
-               </template>
+                    <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="handleAppLink(scope.row)">{{scope.row.appName}}
+                        </el-button>
+                    </template>
                 </el-table-column>
                 <el-table-column
-                        prop="chain"
+                        prop="chainName"
                         label="链名称"
+                        width="280">
+                </el-table-column>
+                <el-table-column
+                        prop="chainVersion"
+                        label="链版本"
                         width="180">
                 </el-table-column>
                 <el-table-column
-                        prop="org"
+                        prop="clientOrg"
                         label="组织"
                         width="180">
                 </el-table-column>
                 <el-table-column
-                        prop="channel"
-                        label="通道信息"
-                        width="180">
-                </el-table-column>
-                <el-table-column
-                        prop="status"
-                        label="状态"
-                        width="180">
+                        prop="apiKey"
+                        label="apiKey"
+                        width="280">
                 </el-table-column>
                 <el-table-column
                         prop="createTime"
@@ -109,35 +110,23 @@
                 tableData: []
             }
         },
-        mounted () {
+        mounted() {
             let self = this;
             this.$http({
-                method:'get',
-                url:'/app/list'
+                method: 'get',
+                url: '/app/list'
 
             }).then(res => {
                 console.log(res);
-                if(res.code == 10000){
+                if (res.code == 10000) {
                     self.tableData = res.data;
                 }
             });
-
-          /*  axios
-                .get('/api/v1/app/list?a='+ Date())
-                .then(response => {
-                    console.log(response.data);
-                    this.tableData = response.data.data;
-                });*/
         },
         methods: {
-             handleAppLink(row,id){
-           //  debugger;
-        console.log(row.ac_id);
-
-        this.$router.push({path:'/appDetInfo',query:{rowData : row}});
-
-        
-        }  
+            handleAppLink(row) {
+                this.$router.push({path: '/appDetInfo', query: {appId: row.id}});
+            }
         },
     }
 </script>
