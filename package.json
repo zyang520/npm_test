@@ -4,11 +4,12 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "debug": "node --inspect-brk=9329 build/create_page",
+        "debug": "node --inspect-brk=9329 build/init_file",
         "dev": "cross-env NODE_ENV=development webpack-dev-server --inline --progress --config build/webpack.config.js",
         "start": "npm run dev",
         "build": "webpack --config build/webpack.build.config.js",
         "create_page": "node build/create_page",
+        "init_file": "node build/init_file",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
