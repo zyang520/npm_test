@@ -11,7 +11,7 @@ import'@/css/common.css'
 import '@/css/fontawesome/font-awesome.min.css'
 
 import http from '@/js/http'
-Vue.use(http)
+Vue.use(http);
 
 // 如果是本地localhost环境，则启动mock，模拟真实数据
 /*if (/localhost/.test(location.href)) {*/
