@@ -3,7 +3,7 @@
         <TitlePage title="我的应用/链码列表" desc=""></TitlePage>
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
-                <el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">更新列表</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">更新链码安装情况</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true">安装链码</el-button>
             </el-row>
             <el-table

@@ -42,7 +42,8 @@ export function request(params) {
         headers.token = accessToken;
     }
     // axios post的data须转换为URLSearchParams后台才能接收到
-    const host = 'http://localhost:8081';
+    const host = process.env.API_HOST || "";
+    debugger;
     return new Promise((resolve, reject) => {
         axios({
             method: params.method ? params.method : 'get',
@@ -68,6 +69,7 @@ export function request(params) {
 
 export default {
     install: () => {
-        Vue.prototype.$http = request
+        Vue.prototype.$http = request;
+        Vue.prototype.api_host = process.env.API_HOST;
     }
 }

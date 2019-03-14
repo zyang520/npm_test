@@ -49,16 +49,18 @@
         </div>
 
         <el-dialog title="创建应用" :visible.sync="uploadDialogVisible">
-            <el-form :model="form">
+            <el-form :model="uploadForm">
                 <el-form-item label="应用名称" :label-width="formLabelWidth">
-                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                    <el-input v-model="uploadForm.name" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="上传配置文件" :label-width="formLabelWidth">
                     <el-upload
                             class="upload-demo"
                             drag
-                            action="https://jsonplaceholder.typicode.com/posts/"
-                            multiple>
+                            :action="UploadAppUrl()"
+                            multiple
+                            :on-success="fileUploadSuccess"
+                            >
                         <i class="el-icon-upload"></i>
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                         <div class="el-upload__tip" slot="tip">只能上传.card文件，且不超过500kb</div>
@@ -67,7 +69,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="uploadDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="uploadDialogVisible = false">确 定</el-button>
+                <el-button type="primary" @click="createAppByFile">确 定</el-button>
             </div>
         </el-dialog>
 
@@ -100,10 +102,14 @@
         },
         data() {
             return {
+                attachId:null,//上传附件Id
                 createDialogVisible: false,
                 uploadDialogVisible: false,
                 bpi: false,
                 form: {
+                    name: '',
+                },
+                uploadForm: {
                     name: '',
                 },
                 formLabelWidth: '120px',
@@ -111,21 +117,69 @@
             }
         },
         mounted() {
-            let self = this;
-            this.$http({
-                method: 'get',
-                url: '/app/list'
-
-            }).then(res => {
-                console.log(res);
-                if (res.code == 10000) {
-                    self.tableData = res.data;
-                }
-            });
+            this.loadData();
         },
         methods: {
+            loadData(){
+                let self = this;
+                this.$http({
+                    method: 'get',
+                    url: '/app/list'
+                }).then(res => {
+                    console.log(res);
+                    if (res.code == 10000) {
+                        self.tableData = res.data;
+                    }
+                });
+            },
             handleAppLink(row) {
-                this.$router.push({path: '/appDetInfo', query: {appId: row.id}});
+                this.$router.push({path: '/appDetail', query: {appId: row.id}});
+            },
+            UploadAppUrl(){
+                return this.api_host + "/attachment/upload?attachmentType=chain_code_card";
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
+            },
+            createAppByFile(){
+                var appName = this.uploadForm.name;
+                var attachId = this.attachId;
+                if(!!!appName){
+                    this.$message.error('应用名称必须填写');
+                    return;
+                }
+                if(!!!attachId){
+                    this.$message.error('配置文件必须上传');
+                    return;
+                }
+                this.$http({
+                    method: 'post',
+                    url: '/app/create',
+                    data:{
+                        "appName": appName,
+                        "attachmentId": attachId,
+                    }
+                }).then(res => {
+                    console.log(res);
+                    if (res.code == 10000) {
+                        this.$message.success('创建应用成功');
+                        this.uploadDialogVisible = false;
+                        this.loadData();
+                    } else {
+                        this.$message.error('创建应用失败');
+                    }
+                });
+            },
+            fileUploadSuccess(response, file, fileList){
+                if(response.code == 10000){
+                    this.attachId = response.data.id;
+                } else {
+                    this.attachId = null;
+                }
             }
         },
     }

@@ -12,8 +12,6 @@ const HOST = process.env.HOST;
 console.log('----host =======' + JSON.stringify(process.env)+ '---------------------');
 
 function resolve (dir) {
-
-
     return path.join(__dirname, '..', dir)
 }
 
@@ -111,13 +109,13 @@ module.exports = {
         stats: `errors-only`, // To show only errors in your bundle
         open: false, // When open is enabled, the dev server will open the browser.
         publicPath: `/`,
-        proxy: {
-            '/demo': {
-                target: 'http://192.168.1.121/',
-                changeOrigin: true,
-                pathRewrite: {'^/demo': '/'}
-            }
-        }
+        // proxy: {
+        //     '/demo': {
+        //         target: 'http://192.168.1.121/',
+        //         changeOrigin: true,
+        //         pathRewrite: {'^/demo': '/'}
+        //     }
+        // }
     }
 }
 

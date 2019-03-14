@@ -71,34 +71,36 @@ export default {
     methods: {
         submitForm(formName) {
             const self = this;
+            var datas = {};
             self.$refs[formName].validate(valid => {
                 if (valid) {
                     var qs = require('qs');
-                    var datas = {
-                        loginName: self.ruleForm.username,
-                        loginPassWord: self.ruleForm.password
+                    datas = {
+                        userName: self.ruleForm.username,
+                        userPwd: self.ruleForm.password
                     };
                     this.fullscreenLoading = true;
-
-
                 }
 
             });
 
             this.$http({
-                url:'/demo/user/login',
+                url:'/user/login',
+                method: "post",
+                data:datas
             }).then(res => {
-                if(res.success){
+                console.log(res);
+                if (res.code == 10000) {
                     self.fullscreenLoading = false;
                     localStorage.setItem('userName', res.data.userName);
-                    localStorage.setItem('accessToken', res.data.token);
-                    this.$store.commit(types.LOGIN,  res.data.token)
+                    // localStorage.setItem('accessToken', res.data.token);
+                    // this.$store.commit(types.LOGIN,  res.data.token)
                     this.$router.push(this.$route.query.redirect || '/');
+                } else {
+                    this.$message.error(res.errorMsg);
                 }
+                this.fullscreenLoading = false;
             });
-
-
-
         }
     }
 }

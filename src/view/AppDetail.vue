@@ -128,7 +128,7 @@
 
             },
             handleAppLink(row, id) {
-                this.$router.push({path: '/channelChainCodeList', query: {appId: row.appId, channelName: row.channelName}});
+                this.$router.push({path: '/appChainCodeList', query: {appId: row.appId, channelName: row.channelName}});
             }
         }
     }

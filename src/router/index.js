@@ -18,40 +18,40 @@ const routes = [
         },
         children: [
             {
-                path: '/myApp',
-                name: 'myApp',
+                path: '/app',
+                name: 'app',
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/vTwo.vue'], resolve)
+                component: resolve => require(['@/view/AppList.vue'], resolve)
             },
             {
-                path: '/chainCodeList',
-                name: 'chainCodeList',
+                path: '/chainCodeCenter',
+                name: 'chainCodeCenter',
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/ChainCodeList.vue'], resolve)
+                component: resolve => require(['@/view/ChainCodeCenter.vue'], resolve)
             },
             {
-                path: 'appDetInfo',
-                name: 'appDetInfo',
+                path: 'appDetail',
+                name: 'appDetail',
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/AppDetInfo.vue'], resolve)
+                component: resolve => require(['@/view/AppDetail.vue'], resolve)
             },
             {
-                path: 'channelChainCodeList',
-                name: 'channelChainCodeList',
+                path: 'appChainCodeList',
+                name: 'appChainCodeList',
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/ChannelChainCodeList.vue'], resolve)
+                component: resolve => require(['@/view/AppChainCodeList.vue'], resolve)
             },
             {
                 path: '/',
-                redirect: '/myApp'
+                redirect: '/app'
             }
         ]
     }
@@ -64,7 +64,7 @@ export default router;
 // 页面刷新时，重新赋值token
 router.beforeEach((to, from, next) => {
     if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
-        if (localStorage.getItem('accessToken')) { // 通过vuex state获取当前的token是否存在
+        if (localStorage.getItem('userName')) { // 通过vuex state获取当前的token是否存在
             next();
         }
         else {

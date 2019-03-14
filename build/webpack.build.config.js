@@ -80,9 +80,7 @@ module.exports = {
         new VueLoader.VueLoaderPlugin(),
         new HtmlWebpackPlugin({template: path.resolve(__dirname, '../', 'index.html'),}),
         new webpack.DefinePlugin({
-            "process.env":{
-                NODE_ENV:JSON.stringify('production')
-            }
+            'process.env': require('../config/prod.env')
         })
     ]
 };

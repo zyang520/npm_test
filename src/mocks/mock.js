@@ -9,7 +9,6 @@ Mock.mock('/demo/user/login', function () {
         'data': {
             token: 'test1_mock',
             userName: 'zcy`'
-
         }
     }
 });
