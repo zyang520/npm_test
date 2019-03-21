@@ -45,6 +45,7 @@
                     :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     border
                     stripe
+                    v-loading="gridLoading"
                     style="width: 100%">
                 <el-table-column
                         prop="channelName"
@@ -58,10 +59,12 @@
                 <el-table-column
                         prop="orderers"
                         label="Orderer节点"
-                        width="180">
+                        width="450"
+                        :formatter="orderer_format">
                 </el-table-column>
                 <el-table-column
                         prop="peers"
+                        :formatter="peers_format"
                         label="Peer节点">
                 </el-table-column>
             </el-table>
@@ -86,37 +89,63 @@
         },
         data() {
             return {
+                gridLoading:false,
                 currentPage: 1, // 当前页码
                 total: 20, // 总条数
                 pageSize: 10, // 每页的数据条数
-                detailData: {},
-                tableData: []
+                detailData: {
+                    appName:"",
+                    apiKey:"",
+                    secretKey:"",
+                    chainName:"",
+                    chainVersion:"",
+                    createTime:"",
+                    lastUpdateTime:"",
+                    clientOrg:""
+                },
+                tableData: [],
+                currentAppId: this.$route.query.appId
             }
         },
         mounted() {
-            var appId = this.$route.query.appId;
+            console.log(123);
             //加载app详情
             this.$http({
                 method: 'get',
                 url: '/app/getById',
-                data: {"appId": appId}
+                data: {"appId": this.currentAppId}
             }).then(res => {
                 if (res.code == 10000) {
-                    this.detailData = res.data;
+                    this.detailData.appName = res.data.appName;
+                    this.detailData.apiKey = res.data.apiKey;
+                    this.detailData.secretKey = res.data.secretKey;
+                    this.detailData.chainName = res.data.chainName;
+                    this.detailData.chainVersion = res.data.chainVersion;
+                    this.detailData.createTime = res.data.createTime;
+                    this.detailData.lastUpdateTime = res.data.lastUpdateTime;
+                    this.detailData.clientOrg = res.data.clientOrg;
                 }
             });
-            //加载通道
-            this.$http({
-                method: 'get',
-                url: '/channel/list',
-                data: {"appId": appId}
-            }).then(res => {
-                if (res.code == 10000) {
-                    this.tableData = res.data;
-                }
-            });
+            this.loadChannelData();
         },
         methods: {
+            loadChannelData(){
+                //加载通道
+                let self = this;
+                self.tableData = [];
+                self.gridLoading = true;
+                this.$http({
+                    method: 'get',
+                    url: '/channel/list',
+                    data: {"appId": this.currentAppId}
+                }).then(res => {
+                    self.gridLoading = false;
+                    if (res.code == 10000) {
+                        var data = res.data;
+                        this.tableData = data;
+                    }
+                });
+            },
             handleSizeChange(val) {
                 console.log(`每页 ${val} 条`);
                 this.currentPage = 1;
@@ -129,6 +158,12 @@
             },
             handleAppLink(row, id) {
                 this.$router.push({path: '/appChainCodeList', query: {appId: row.appId, channelName: row.channelName}});
+            },
+            orderer_format(row, column, cellValue, index){
+                return cellValue.map(function(i){return i["name"] + "("+i["url"]+")"}).join(",");
+            },
+            peers_format(row, column, cellValue, index){
+                return cellValue.map(function(i){return i["name"] + "("+i["url"]+")"}).join(",");
             }
         }
     }

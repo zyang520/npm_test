@@ -11,6 +11,7 @@
                     :data="tableData"
                     border
                     stripe
+                    v-loading="gridLoading"
                     style="width: 100%">
                 <el-table-column
                         prop="appName"
@@ -57,7 +58,7 @@
                     <el-upload
                             class="upload-demo"
                             drag
-                            :action="UploadAppUrl()"
+                            :action="UploadUrl()"
                             multiple
                             :on-success="fileUploadSuccess"
                             >
@@ -103,6 +104,7 @@
         data() {
             return {
                 attachId:null,//上传附件Id
+                gridLoading:false,
                 createDialogVisible: false,
                 uploadDialogVisible: false,
                 bpi: false,
@@ -122,10 +124,13 @@
         methods: {
             loadData(){
                 let self = this;
-                this.$http({
+                self.tableData = [];
+                self.gridLoading = true;
+                self.$http({
                     method: 'get',
                     url: '/app/list'
                 }).then(res => {
+                    self.gridLoading = false;
                     console.log(res);
                     if (res.code == 10000) {
                         self.tableData = res.data;
@@ -135,8 +140,9 @@
             handleAppLink(row) {
                 this.$router.push({path: '/appDetail', query: {appId: row.id}});
             },
-            UploadAppUrl(){
+            UploadUrl(){
                 return this.api_host + "/attachment/upload?attachmentType=chain_code_card";
+                this.$router.go(0);
             },
             handleClose(done) {
                 this.$confirm('确认关闭？')

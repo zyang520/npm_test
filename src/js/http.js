@@ -43,7 +43,6 @@ export function request(params) {
     }
     // axios post的data须转换为URLSearchParams后台才能接收到
     const host = process.env.API_HOST || "";
-    debugger;
     return new Promise((resolve, reject) => {
         axios({
             method: params.method ? params.method : 'get',
