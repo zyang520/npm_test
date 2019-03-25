@@ -1,9 +1,9 @@
 <template>
     <div style="width:100%;height:100%;">
-        <TitlePage title="我的应用/app1/channel1" desc=""></TitlePage>
+        <TitlePage title="我的应用" desc=""></TitlePage>
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
-                <el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">创建应用</el-button>
+                <!--<el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">创建应用</el-button>-->
                 <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true">上传应用</el-button>
                 <el-button type="primary" icon="el-icon-delete">删除</el-button>
             </el-row>
@@ -118,11 +118,12 @@
                 tableData: []
             }
         },
-        mounted() {
+        activated: function () {
             this.loadData();
         },
         methods: {
             loadData(){
+                console.log("loadData");
                 let self = this;
                 self.tableData = [];
                 self.gridLoading = true;
@@ -138,7 +139,7 @@
                 });
             },
             handleAppLink(row) {
-                this.$router.push({path: '/appDetail', query: {appId: row.id}});
+                this.$router.push({path: '/appDetail', query: {appId: row.id, appName: row.appName}});
             },
             UploadUrl(){
                 return this.api_host + "/attachment/upload?attachmentType=chain_code_card";
@@ -185,6 +186,8 @@
                     this.attachId = response.data.id;
                 } else {
                     this.attachId = null;
+                    this.$message.error("上传文件失败");
+                    this.$refs.uploadDemo.clearFiles();
                 }
             }
         },

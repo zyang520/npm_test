@@ -18,6 +18,10 @@ const routes = [
         },
         children: [
             {
+                path: '/',
+                redirect: '/app'
+            },
+            {
                 path: '/app',
                 name: 'app',
                 meta: {
@@ -48,16 +52,12 @@ const routes = [
                     requireAuth: true
                 },
                 component: resolve => require(['@/view/AppChainCodeList.vue'], resolve)
-            },
-            {
-                path: '/',
-                redirect: '/app'
             }
         ]
     }
 ];
 
-const router = new Router({routes})
+const router = new Router({routes});
 export default router;
 
 
@@ -76,6 +76,6 @@ router.beforeEach((to, from, next) => {
     else {
         next();
     }
-})
+});
 
 

@@ -1,6 +1,6 @@
 <template>
     <div style="width:100%;height:100%;">
-        <TitlePage title="我的应用/应用详情" desc=""></TitlePage>
+        <TitlePage :title="buildTitle()" desc=""></TitlePage>
         <div class="base-info">
             <h2>基本信息</h2>
             <ul>
@@ -89,31 +89,33 @@
         },
         data() {
             return {
-                gridLoading:false,
+                gridLoading: false,
                 currentPage: 1, // 当前页码
                 total: 20, // 总条数
                 pageSize: 10, // 每页的数据条数
                 detailData: {
-                    appName:"",
-                    apiKey:"",
-                    secretKey:"",
-                    chainName:"",
-                    chainVersion:"",
-                    createTime:"",
-                    lastUpdateTime:"",
-                    clientOrg:""
+                    appName: "",
+                    apiKey: "",
+                    secretKey: "",
+                    chainName: "",
+                    chainVersion: "",
+                    createTime: "",
+                    lastUpdateTime: "",
+                    clientOrg: ""
                 },
                 tableData: [],
-                currentAppId: this.$route.query.appId
+                queryAppId: "",
+                queryAppName: ""
             }
         },
-        mounted() {
-            console.log(123);
+        activated() {
+            this.queryAppId = this.$route.query.appId;
+            this.queryAppName = this.$route.query.appName;
             //加载app详情
             this.$http({
                 method: 'get',
                 url: '/app/getById',
-                data: {"appId": this.currentAppId}
+                data: {"appId": this.queryAppId}
             }).then(res => {
                 if (res.code == 10000) {
                     this.detailData.appName = res.data.appName;
@@ -129,7 +131,7 @@
             this.loadChannelData();
         },
         methods: {
-            loadChannelData(){
+            loadChannelData() {
                 //加载通道
                 let self = this;
                 self.tableData = [];
@@ -137,7 +139,7 @@
                 this.$http({
                     method: 'get',
                     url: '/channel/list',
-                    data: {"appId": this.currentAppId}
+                    data: {"appId": this.queryAppId}
                 }).then(res => {
                     self.gridLoading = false;
                     if (res.code == 10000) {
@@ -157,13 +159,23 @@
 
             },
             handleAppLink(row, id) {
-                this.$router.push({path: '/appChainCodeList', query: {appId: row.appId, channelName: row.channelName}});
+                this.$router.push({
+                    path: '/appChainCodeList',
+                    query: {appId: this.queryAppId, appName: this.queryAppName, channelName: row.channelName}
+                });
             },
-            orderer_format(row, column, cellValue, index){
-                return cellValue.map(function(i){return i["name"] + "("+i["url"]+")"}).join(",");
+            orderer_format(row, column, cellValue, index) {
+                return cellValue.map(function (i) {
+                    return i["name"] + "(" + i["url"] + ")"
+                }).join(",");
             },
-            peers_format(row, column, cellValue, index){
-                return cellValue.map(function(i){return i["name"] + "("+i["url"]+")"}).join(",");
+            peers_format(row, column, cellValue, index) {
+                return cellValue.map(function (i) {
+                    return i["name"] + "(" + i["url"] + ")"
+                }).join(",");
+            },
+            buildTitle() {
+                return "我的应用/" + this.queryAppName;
             }
         }
     }

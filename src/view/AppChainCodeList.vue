@@ -1,9 +1,9 @@
 <template>
     <div style="width:100%;height:100%;">
-        <TitlePage title="我的应用/链码列表" desc=""></TitlePage>
+        <TitlePage :title="buildTitle()" desc=""></TitlePage>
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
-                <el-button type="primary" icon="el-icon-edit" @click="updateChaincodes">更新链码安装情况</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="updateChaincodes">获取安装情况</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="installDialogVisible = true">安装链码</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="openInitDialog">初始化链码</el-button>
             </el-row>
@@ -101,7 +101,7 @@
                        element-loading-background="rgba(0, 0, 0, 0.1)">
                 <el-form :model="initializeForm">
                     <el-form-item label="当前通道" :label-width="formLabelWidth">
-                        <el-input v-model="currentChannelName" autocomplete="off" :disabled="true" style="width: 200px;"></el-input>
+                        <el-input v-model="queryChannelName" autocomplete="off" :disabled="true" style="width: 200px;"></el-input>
                     </el-form-item>
                     <el-form-item label="选择链码" :label-width="formLabelWidth">
                         <el-select
@@ -148,8 +148,8 @@
                 fileListLimit: 1,
                 initDialogVisible: false,
                 installDialogVisible: false,
-                currentAppId: this.$route.query.appId,
-                currentChannelName: this.$route.query.channelName,
+                queryAppId: "",
+                queryChannelName: "",
                 installForm:{
                     name:"",
                     version:"",
@@ -171,14 +171,16 @@
             }
 
         },
-        mounted() {
-            console.log(122222);
+        activated() {
+            this.queryAppId= this.$route.query.appId;
+            this.queryAppName= this.$route.query.appName;
+            this.queryChannelName= this.$route.query.channelName;
             let self = this;
             this.loadGridData();
             this.$http({
                 method: 'get',
                 url: '/app/queryPeersByChannel',
-                data: {"appId": this.currentAppId,"channelName": this.currentChannelName}
+                data: {"appId": this.queryAppId,"channelName": this.queryChannelName}
             }).then(res => {
                 if (res.code == 10000) {
                     self.peers = res.data;
@@ -193,7 +195,7 @@
                 this.$http({
                     method: 'get',
                     url: '/chaincode/InitializeList',
-                    data: {"appId": this.currentAppId, "channelName": this.currentChannelName}
+                    data: {"appId": this.queryAppId, "channelName": this.queryChannelName}
                 }).then(res => {
                     self.gridLoading = false;
                     console.log(res);
@@ -229,7 +231,7 @@
                     method: 'post',
                     url: '/chaincode/installJava',
                     data: {
-                        "appId": this.currentAppId,
+                        "appId": this.queryAppId,
                         "peerNames": this.selectPeers.map(function(i){return i;}).join(","),
                         "chaincodeName": this.installForm.name,
                         "chaincodeVersion": this.installForm.version,
@@ -238,17 +240,21 @@
                 }).then(res => {
                     if(res.code == 10000){
                         var data = res.data;
+                        var hasError = false;
                         for(var i = 0; i < data.length; i++){
                             var item = data[i];
                             if(item["statusCode"] != 200){
-                                this.$message.error("链码" + this.extraData.chaincodeName + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["message"]);
+                                self.$message.error("链码" + self.extraData.chaincodeName + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["message"]);
+                                hasError = true;
                                 break;
                             }
                         }
-                        this.$message.success("安装成功!");
-                        setTimeout(function(){
-                            self.installDialogVisible = false;
-                        }, 500);
+                        if(!hasError){
+                            this.$message.success("安装成功!");
+                            setTimeout(function(){
+                                self.installDialogVisible = false;
+                            }, 500);
+                        }
                     } else {
                         this.$message.error(response.errorMsg);
                     }
@@ -259,8 +265,8 @@
                     method: 'get',
                     url: '/chaincode/updateInstallChaincodes',
                     data: {
-                        "appId": this.currentAppId,
-                        "channeName": this.currentChannelName,
+                        "appId": this.queryAppId,
+                        "channeName": this.queryChannelName,
                     }
                 }).then(res => {
                     if(res.code == 10000){
@@ -283,8 +289,8 @@
                     method: 'get',
                     url: '/chaincode/InstallList',
                     data: {
-                        "appId": this.currentAppId,
-                        "channelName": this.currentChannelName,
+                        "appId": this.queryAppId,
+                        "channelName": this.queryChannelName,
                     }
                 }).then(res => {
                     if(res.code == 10000){
@@ -316,8 +322,8 @@
                     method: 'post',
                     url: '/chaincode/InitializeJava',
                     data: {
-                        "appId": this.currentAppId,
-                        "channelName": this.currentChannelName,
+                        "appId": this.queryAppId,
+                        "channelName": this.queryChannelName,
                         "chaincodeName": chainCodeName,
                         "chaincodeVersion": chainCodeVersion,
                     }
@@ -336,6 +342,9 @@
                         this.$message.error("系统错误!");
                     }
                 });
+            },
+            buildTitle(){
+                return "我的应用/"+ this.queryAppName + "/" + this.queryChannelName;
             }
         }
     }

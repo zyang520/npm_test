@@ -9,7 +9,7 @@
 
                 <el-menu router :default-active="$route.path" class="el-menu-demo" mode="horizontal">
                     <el-menu-item index="/app">我的应用</el-menu-item>
-                    <el-menu-item index="/dd">日志</el-menu-item>
+                    <!--<el-menu-item index="/dd">日志</el-menu-item>-->
                     <el-menu-item index="/chainCodeCenter">链码中心</el-menu-item>
                 </el-menu>
             </div>
@@ -34,7 +34,7 @@
     export default {
         data() {
             return {
-                activeIndex: '0',
+                activeIndex: '1',
                 userName: localStorage.getItem('userName')
             };
         },
