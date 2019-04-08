@@ -4,8 +4,8 @@
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
                 <!--<el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">创建应用</el-button>-->
-                <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true">上传应用</el-button>
-                <el-button type="primary" icon="el-icon-delete">删除</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true">创建应用</el-button>
+                <!--<el-button type="primary" icon="el-icon-delete">删除</el-button>-->
             </el-row>
             <el-table
                     :data="tableData"
@@ -46,6 +46,15 @@
                         prop="createTime"
                         label="创建时间">
                 </el-table-column>
+                <el-table-column
+                        fixed="right"
+                        label="操作"
+                        width="100">
+                    <template slot-scope="scope">
+                        <el-button @click="handleAppLink(scope.row)" type="text" size="small">查看</el-button>
+                        <el-button @click="deleteApp(scope.row)" type="text" size="small">删除</el-button>
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
 
@@ -61,6 +70,7 @@
                             :action="UploadUrl()"
                             multiple
                             :on-success="fileUploadSuccess"
+                            :limit="fileListLimit"
                             >
                         <i class="el-icon-upload"></i>
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -103,6 +113,7 @@
         },
         data() {
             return {
+                fileListLimit:1,
                 attachId:null,//上传附件Id
                 gridLoading:false,
                 createDialogVisible: false,
@@ -189,6 +200,35 @@
                     this.$message.error("上传文件失败");
                     this.$refs.uploadDemo.clearFiles();
                 }
+            },
+            deleteApp(row){
+                this.$confirm('此操作将永久删除该应用, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.$http({
+                        method: 'get',
+                        url: '/app/delete_by_id',
+                        data:{
+                            "appId": row.id
+                        }
+                    }).then(res => {
+                        console.log(res);
+                        if (res.code == 10000) {
+                            this.$message.success('删除应用成功');
+                            this.loadData();
+                        } else {
+                            this.$message.error('删除应用失败');
+                        }
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+
             }
         },
     }

@@ -7,10 +7,15 @@
                     <p class="title">区块链链码开发中心</p>
                 </div>
 
-                <el-menu router :default-active="$route.path" class="el-menu-demo" mode="horizontal">
-                    <el-menu-item index="/app">我的应用</el-menu-item>
+                <el-menu router
+                         :default-active="activeIndex"
+                         class="el-menu-demo"
+                         @select="handleSelect"
+                         mode="horizontal"
+                         :router="use_router">
+                    <el-menu-item index="11">我的应用</el-menu-item>
                     <!--<el-menu-item index="/dd">日志</el-menu-item>-->
-                    <el-menu-item index="/chainCodeCenter">链码中心</el-menu-item>
+                    <el-menu-item index="22">链码中心</el-menu-item>
                 </el-menu>
             </div>
             <div class="header-right">
@@ -32,9 +37,11 @@
 
 <script>
     export default {
+        // props: ["activeIndex"],
         data() {
             return {
-                activeIndex: '1',
+                activeIndex: '11',
+                use_router: false,
                 userName: localStorage.getItem('userName')
             };
         },
@@ -43,6 +50,19 @@
                 if (command == 'logOut') {
                     localStorage.removeItem('userName');
                     this.$router.push(this.$route.query.redirect || '/login');
+                }
+            },
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+                if (key == 11) {
+                    this.$router.push({path: '/app'});
+                } else if (key == 22) {
+                    this.$router.push({
+                        path: '/appDetail',
+                        query: {appId: "66861b2b29854563af5139bbf80dc4e5", appName: "local"}
+                    });
+                } else {
+                    this.$router.push({path: '/app'});
                 }
             }
         }

@@ -6,9 +6,14 @@
                 <el-button type="primary" icon="el-icon-edit" @click="updateChaincodes">获取安装情况</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="installDialogVisible = true">安装链码</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="openInitDialog">初始化链码</el-button>
+                <el-input
+                        v-model="search"
+                        placeholder="搜索链码"
+                        clearable
+                        style="width: 200px;margin-left: 30px;"/>
             </el-row>
             <el-table
-                    :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                    :data="filterData().slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     border
                     stripe
                     v-loading="gridLoading"
@@ -30,7 +35,8 @@
                 </el-table-column>
                 <el-table-column
                         prop="resetUrl"
-                        label="操作">
+                        label="操作"
+                        >
                     <template slot-scope="scope">
                         <a target="_blank" :href="scope.row.resetUrl">访问接口</a>
                     </template>
@@ -40,7 +46,7 @@
             <div class="block" style="margin-top:15px;float:right;">
                 <el-pagination align='center' @size-change="handleSizeChange" @current-change="handleCurrentChange"
                                :current-page="currentPage" :page-sizes="[1,5,10,20]" :page-size="pageSize"
-                               layout="total, sizes, prev, pager, next, jumper" :total="tableData.length">
+                               layout="total, sizes, prev, pager, next, jumper" :total="filterData().length">
                 </el-pagination>
             </div>
 
@@ -139,6 +145,7 @@
         },
         data() {
             return {
+                search: "",
                 gridLoading: false,
                 currentPage: 1, // 当前页码
                 total: 20, // 总条数
@@ -188,6 +195,9 @@
             });
         },
         methods: {
+            filterData(){
+                return this.tableData.filter(data => !this.search || data.chainCodeName.toLowerCase().includes(this.search.toLowerCase()));
+            },
             loadGridData(){
                 var self = this;
                 self.gridLoading = true;
@@ -244,7 +254,14 @@
                         for(var i = 0; i < data.length; i++){
                             var item = data[i];
                             if(item["statusCode"] != 200){
-                                self.$message.error("链码" + self.extraData.chaincodeName + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["message"]);
+                                var message1 = "链码" + self.installForm.name + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["message"];
+                                //self.$message.error(message1);
+                                self.$message({
+                                    showClose: true,
+                                    duration:0,
+                                    type: 'error',
+                                    message:message1
+                                });
                                 hasError = true;
                                 break;
                             }
@@ -256,7 +273,7 @@
                             }, 500);
                         }
                     } else {
-                        this.$message.error(response.errorMsg);
+                        this.$message.error("系统错误!");
                     }
                 });
             },
@@ -336,10 +353,15 @@
                             self.initDialogVisible = false;
                             self.loadGridData();
                         } else {
-                            this.$message.error("初始化失败!");
+                            self.$message({
+                                showClose: true,
+                                duration:0,
+                                type: 'error',
+                                message:"链码初始化上失败，失败原因:" + res.data.message
+                            });
                         }
                     } else {
-                        this.$message.error("系统错误!");
+                        self.$message.error("系统错误!");
                     }
                 });
             },
