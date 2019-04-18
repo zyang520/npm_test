@@ -36,14 +36,18 @@
                 <el-table-column
                         prop="resetUrl"
                         label="操作"
-                        >
+                >
                     <template slot-scope="scope">
-                        <a target="_blank" :href="scope.row.resetUrl">访问接口</a>
+                        <a target="_blank" :href="scope.row.resetUrl" style="color: #409EFF; height: 32px;display: inline-block;line-height: 32px;font-size: 12px;"><span>访问接口</span></a>
+                        <router-link tag="a" target="_blank" style="color: #409EFF; height: 32px;display: inline-block;line-height: 32px;font-size: 12px;"
+                                     :to="{name:'transactionLog',query:{appId: queryAppId,channelName: queryChannelName,chainCodeName: scope.row.chainCodeName}}">
+                            <span>日志查询</span>
+                        </router-link>
                     </template>
                 </el-table-column>
             </el-table>
 
-            <div class="block" style="margin-top:15px;float:right;">
+            <div class="block" style="margin-top:10px;float:right;">
                 <el-pagination align='center' @size-change="handleSizeChange" @current-change="handleCurrentChange"
                                :current-page="currentPage" :page-sizes="[1,5,10,20]" :page-size="pageSize"
                                layout="total, sizes, prev, pager, next, jumper" :total="filterData().length">
@@ -59,7 +63,7 @@
                                 collapse-tags
                                 placeholder="请选择"
                                 style="width: 300px"
-                                >
+                        >
                             <el-option
                                     v-for="item in peers"
                                     :key="item.name"
@@ -107,7 +111,8 @@
                        element-loading-background="rgba(0, 0, 0, 0.1)">
                 <el-form :model="initializeForm">
                     <el-form-item label="当前通道" :label-width="formLabelWidth">
-                        <el-input v-model="queryChannelName" autocomplete="off" :disabled="true" style="width: 200px;"></el-input>
+                        <el-input v-model="queryChannelName" autocomplete="off" :disabled="true"
+                                  style="width: 200px;"></el-input>
                     </el-form-item>
                     <el-form-item label="选择链码" :label-width="formLabelWidth">
                         <el-select
@@ -157,37 +162,36 @@
                 installDialogVisible: false,
                 queryAppId: "",
                 queryChannelName: "",
-                installForm:{
-                    name:"",
-                    version:"",
+                installForm: {
+                    name: "",
+                    version: "",
                 },
-                initializeForm:{
-                    chainCode:""
+                initializeForm: {
+                    chainCode: ""
                 },
                 peers: [],
                 selectPeers: [],
                 uploadExtraData: {
-                    "attachmentType":"java_chain_code",
+                    "attachmentType": "java_chain_code",
                 },
-                uploadAttachId:null,
-                installChaincodesOption:[
-
-                ],
+                uploadAttachId: null,
+                installChaincodesOption: [],
                 queryChaincodesLoading: false,
                 initializeDialogLoading: false
             }
 
         },
         activated() {
-            this.queryAppId= this.$route.query.appId;
-            this.queryAppName= this.$route.query.appName;
-            this.queryChannelName= this.$route.query.channelName;
+            this.$store.commit('setActiveMenuIndex', "1");
+            this.queryAppId = this.$route.query.appId;
+            this.queryAppName = this.$route.query.appName;
+            this.queryChannelName = this.$route.query.channelName;
             let self = this;
             this.loadGridData();
             this.$http({
                 method: 'get',
                 url: '/app/queryPeersByChannel',
-                data: {"appId": this.queryAppId,"channelName": this.queryChannelName}
+                data: {"appId": this.queryAppId, "channelName": this.queryChannelName}
             }).then(res => {
                 if (res.code == 10000) {
                     self.peers = res.data;
@@ -195,10 +199,10 @@
             });
         },
         methods: {
-            filterData(){
+            filterData() {
                 return this.tableData.filter(data => !this.search || data.chainCodeName.toLowerCase().includes(this.search.toLowerCase()));
             },
-            loadGridData(){
+            loadGridData() {
                 var self = this;
                 self.gridLoading = true;
                 self.tableData = [];
@@ -223,11 +227,11 @@
                 console.log(`当前页: ${val}`);
                 this.currentPage = val;
             },
-            uploadUrl(){
+            uploadUrl() {
                 return this.api_host + "/attachment/upload";
             },
-            uploadSuccess(response, file, fileList){
-                if(response.code == 10000){
+            uploadSuccess(response, file, fileList) {
+                if (response.code == 10000) {
                     this.uploadAttachId = response.data.id;
                 } else {
                     this.uploadAttachId = null;
@@ -235,40 +239,42 @@
                     this.$refs.uploadDemo.clearFiles();
                 }
             },
-            chainCodeSubmit(){
+            chainCodeSubmit() {
                 var self = this;
                 this.$http({
                     method: 'post',
                     url: '/chaincode/installJava',
                     data: {
                         "appId": this.queryAppId,
-                        "peerNames": this.selectPeers.map(function(i){return i;}).join(","),
+                        "peerNames": this.selectPeers.map(function (i) {
+                            return i;
+                        }).join(","),
                         "chaincodeName": this.installForm.name,
                         "chaincodeVersion": this.installForm.version,
                         "attachmentId": this.uploadAttachId,
                     }
                 }).then(res => {
-                    if(res.code == 10000){
+                    if (res.code == 10000) {
                         var data = res.data;
                         var hasError = false;
-                        for(var i = 0; i < data.length; i++){
+                        for (var i = 0; i < data.length; i++) {
                             var item = data[i];
-                            if(item["statusCode"] != 200){
+                            if (item["statusCode"] != 200) {
                                 var message1 = "链码" + self.installForm.name + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["message"];
                                 //self.$message.error(message1);
                                 self.$message({
                                     showClose: true,
-                                    duration:0,
+                                    duration: 0,
                                     type: 'error',
-                                    message:message1
+                                    message: message1
                                 });
                                 hasError = true;
                                 break;
                             }
                         }
-                        if(!hasError){
+                        if (!hasError) {
                             this.$message.success("安装成功!");
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 self.installDialogVisible = false;
                             }, 500);
                         }
@@ -277,7 +283,7 @@
                     }
                 });
             },
-            updateChaincodes(){
+            updateChaincodes() {
                 this.$http({
                     method: 'get',
                     url: '/chaincode/updateInstallChaincodes',
@@ -286,7 +292,7 @@
                         "channeName": this.queryChannelName,
                     }
                 }).then(res => {
-                    if(res.code == 10000){
+                    if (res.code == 10000) {
                         this.$message.success("更新成功!");
                         this.loadGridData();
                     } else {
@@ -294,13 +300,13 @@
                     }
                 });
             },
-            status_format(row, column, cellValue, index){
+            status_format(row, column, cellValue, index) {
                 return cellValue.map(function (i) {
-                    var hasInstall = i["hasInstall"]?"已安装":"未安装";
+                    var hasInstall = i["hasInstall"] ? "已安装" : "未安装";
                     return i["peerName"] + "(" + hasInstall + ")"
                 }).join(",");
             },
-            openInitDialog(){
+            openInitDialog() {
                 var self = this;
                 this.$http({
                     method: 'get',
@@ -310,24 +316,24 @@
                         "channelName": this.queryChannelName,
                     }
                 }).then(res => {
-                    if(res.code == 10000){
-                        self.installChaincodesList =  res.data;
-                        res.data.forEach(function(item){
-                            var initialize = item.initialize ? "(已初始化)":"";
+                    if (res.code == 10000) {
+                        self.installChaincodesList = res.data;
+                        res.data.forEach(function (item) {
+                            var initialize = item.initialize ? "(已初始化)" : "";
                             item.key = item.chainCodeName + "::" + item.chainCodeVersion;
                             item.label = item.chainCodeName + "::" + item.chainCodeVersion + initialize;
                             item.disabled = item.initialize;
                         });
-                        self.installChaincodesOption =  res.data;
+                        self.installChaincodesOption = res.data;
                         this.initDialogVisible = true;
                     } else {
                         this.$message.error("加载安装链码数据失败!");
                     }
                 });
             },
-            initializeSubmit(){
+            initializeSubmit() {
                 var self = this;
-                if(this.initializeForm.chainCode == ""){
+                if (this.initializeForm.chainCode == "") {
                     this.$message.error("请选择一个链码");
                     return;
                 }
@@ -347,17 +353,17 @@
                 }).then(res => {
                     self.initializeDialogLoading = false;
                     console.log(res);
-                    if(res.code == 10000){
-                        if(res.data && res.data.statusCode == 200){
+                    if (res.code == 10000) {
+                        if (res.data && res.data.statusCode == 200) {
                             this.$message.success("初始化成功!");
                             self.initDialogVisible = false;
                             self.loadGridData();
                         } else {
                             self.$message({
                                 showClose: true,
-                                duration:0,
+                                duration: 0,
                                 type: 'error',
-                                message:"链码初始化上失败，失败原因:" + res.data.message
+                                message: "链码初始化上失败，失败原因:" + res.data.message
                             });
                         }
                     } else {
@@ -365,8 +371,11 @@
                     }
                 });
             },
-            buildTitle(){
-                return "我的应用/"+ this.queryAppName + "/" + this.queryChannelName;
+            logDetail(row) {
+                return "/#/transactionLog?appId=fc77ec9e04c34c99afd277b1774d4a3e&channelName=mychannel&chainCodeName=test11";
+            },
+            buildTitle() {
+                return "我的应用/" + this.queryAppName + "/" + this.queryChannelName;
             }
         }
     }

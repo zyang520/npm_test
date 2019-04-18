@@ -2,13 +2,20 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Box from '@/view/Box'
 
+const Login = r => require.ensure([], () => r(require('@/view/login/Login')), `login`);
+const AppList = r => require.ensure([], () => r(require('@/view/AppList.vue')), `AppList`);
+const AppDetail = r => require.ensure([], () => r(require('@/view/AppDetail.vue')), `AppDetail`);
+const AppChainCodeList = r => require.ensure([], () => r(require('@/view/AppChainCodeList.vue')), `AppChainCodeList`);
+const ChainCodeCenter = r => require.ensure([], () => r(require('@/view/ChainCodeCenter.vue')), `ChainCodeCenter`);
+const TransactionLog = r => require.ensure([], () => r(require('@/view/TransactionLog.vue')), `TransactionLog`);
+
 
 Vue.use(Router)
 
 const routes = [
     {
         path: '/Login',
-        component: resolve => require(['@/view/login/Login'], resolve)
+        component: Login
     },
     {
         path: '/',
@@ -27,7 +34,7 @@ const routes = [
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/AppList.vue'], resolve)
+                component: AppList
             },
             {
                 path: '/chainCodeCenter',
@@ -35,7 +42,7 @@ const routes = [
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/ChainCodeCenter.vue'], resolve)
+                component: ChainCodeCenter
             },
             {
                 path: 'appDetail',
@@ -43,7 +50,7 @@ const routes = [
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/AppDetail.vue'], resolve)
+                component: AppDetail
             },
             {
                 path: 'appChainCodeList',
@@ -51,7 +58,15 @@ const routes = [
                 meta: {
                     requireAuth: true
                 },
-                component: resolve => require(['@/view/AppChainCodeList.vue'], resolve)
+                component: AppChainCodeList
+            },
+            {
+                path: 'transactionLog',
+                name: 'transactionLog',
+                meta: {
+                    requireAuth: true
+                },
+                component: TransactionLog
             }
         ]
     }

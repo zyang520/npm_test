@@ -1,14 +1,16 @@
 import Vue from 'vue'
+import Vuex from 'vuex'
 import App from './app.vue'
 import router from './router'
-import store from './store/store'
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.use(ElementUI);
+Vue.use(Vuex)
 
 import '@/css/common.css'
+import '@/css/base.css'
 import '@/css/fontawesome/font-awesome.min.css'
 
 import http from '@/js/http'
@@ -20,6 +22,21 @@ Vue.use(http);
 // require('@/mocks/mock')
 /*}*/
 
+const store = new Vuex.Store({
+    state: {
+        count: 0,
+        activeMenuIndex:""
+    },
+    mutations: {
+        increment (state) {
+            state.count++
+        },
+        //修改当前显示的菜单
+        setActiveMenuIndex(state, index){
+            state.activeMenuIndex = index;
+        }
+    }
+});
 
 new Vue({
     el: '#app',

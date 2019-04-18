@@ -8,7 +8,7 @@
             <div class="logoWrap col-md-12 col-sm-12 col-xs-12">
               <a class="logo hidden-xs" href="##">
                 <img class="img-responsive" src="@/assets/images/logo-95.png" style="max-height: 45px;margin-left:20px; margin-top: 3px;display:inline-block;" alt="LOGO">
-                <span  style="color:#0d467b;vertical-align: -7px;font-size:22px;">区块链链码开发中心</span>
+                <span  style="color:#0d467b;vertical-align: -7px;font-size:22px;">链码中心</span>
               </a>
 
             </div>

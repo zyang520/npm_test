@@ -55,7 +55,8 @@
         "webpack-cli": "^3.2.3",
         "webpack-dev-server": "^3.1.14",
         "webpack-merge": "^4.2.1",
-        "zcy-npm-package-study": "^1.0.0"
+        "zcy-npm-package-study": "^1.0.0",
+        "webpack-bundle-analyzer": "^3.1.0"
     },
     "dependencies": {
         "clean-webpack-plugin": "^2.0.1",
@@ -64,8 +65,8 @@
         "imagemin-loader": "1.1.1",
         "imagemin-mozjpeg": "7.0.0",
         "imagemin-pngquant": "6.0.0",
-        "mini-css-extract-plugin": "^0.5.0",
-        "optimize-css-assets-webpack-plugin": "^5.0.1",
+        "mini-css-extract-plugin": "0.4.1",
+        "optimize-css-assets-webpack-plugin": "5.0.1",
         "uglifyjs-webpack-plugin": "^2.1.1"
     }
 }

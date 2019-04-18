@@ -34,7 +34,7 @@
                 </el-table-column>
             </el-table>
 
-            <div class="block" style="margin-top:15px;float:right;">
+            <div class="block" style="margin-top:10px;float:right;">
                 <el-pagination align='center' @size-change="handleSizeChange" @current-change="handleCurrentChange"
                                :current-page="currentPage" :page-sizes="[1,5,10,20]" :page-size="pageSize"
                                layout="total, sizes, prev, pager, next, jumper" :total="tableData.length">
@@ -96,9 +96,7 @@
 
 
 <style>
-    .table-container {
-        margin: 20px;
-    }
+
 </style>
 
 

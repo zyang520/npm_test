@@ -31,12 +31,12 @@ module.exports = {
             new OptimizeCssAssetsPlugin({
                 assetNameRegExp: /\.css$/g,
                 cssProcessorOptions: {
-                safe: true,
-                autoprefixer: { disable: true }, 
-                mergeLonghand: false,
-                discardComments: {
-                    removeAll: true // 移除注释
-                }
+                    safe: true,
+                    autoprefixer: { disable: true },
+                    mergeLonghand: false,
+                    discardComments: {
+                        removeAll: true // 移除注释
+                    }
                 },
                 canPrint: true
             }),
@@ -57,7 +57,7 @@ module.exports = {
                     }
                 }
             })
-            
+
         ],
         noEmitOnErrors: true,  //编译错误时，是否不生成资源
         splitChunks: {  //根据不同的策略，分割打包出来的bundle
@@ -68,7 +68,12 @@ module.exports = {
             maxInitialRequests: 3, // 最大初始化请求数
             name: true, // 名称，此选项可接收 function
             cacheGroups: {
-                vendor: { 
+                elementUI: {
+                    name: "chunk-elementUI", // 单独将 elementUI 拆包
+                    priority: 20, // 权重要大于 libs 和 app 不然会被打包进 libs 或者 app
+                    test: /[\/]node_modules[\/]element-ui[\/]/
+                },
+                vendor: {
                     chunks: `all`, // all-异步加载快，但初始下载量较大，文件共用性好； initial-初始下载量较小，但异步加载量较大，文件间有重复内容
                     priority: -10,
                     reuseExistingChunk: false, // 选项用于配置在模块完全匹配时重用已有的块，而不是创建新块
@@ -96,30 +101,49 @@ module.exports = {
             {
                 test: /\.js$/,
                 loader: `babel-loader`,
-                include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')] 
+                include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
             },
             {
                 test: /\.vue$/,
-                loader: 'vue-loader' // 处理以.vue结尾的文件
+                use: [
+                    // MiniCssExtractPlugin.loader,
+                    "vue-loader"
+                ]
+                // loader: 'vue-loader' // 处理以.vue结尾的文件
             },
             {
                 test: /\.css$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    "css-loader"
+                use: [{
+                    loader : MiniCssExtractPlugin.loader,
+                    options : {
+                        publicPath: '../../'
+                    }
+                },"css-loader"
                 ]
             },
             {
                 test: /\.scss$/,
-                loader: "style-loader!css-loader!sass-loader"
+                use: [
+                    {
+                        loader: "style-loader" // 将 JS 字符串生成为 style 节点
+                    },
+                    {
+                        loader: "css-loader" // 将 CSS 转化成 CommonJS 模块
+                    },
+                    {
+                        loader: "sass-loader" // 将 Sass 编译成 CSS
+                    }
+                ]
+                //loader: "style-loader!css-loader!sass-loader"
             },
             {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
                 loader: 'url-loader',
                 options: {
                     limit: 3000,
-                    name: 'media/[name].[hash:7].[ext]'
-                  }
+                    name: path.posix.join('static', 'fonts/[name].[hash:7].[ext]'),
+
+                }
 
             },
             {
@@ -143,9 +167,9 @@ module.exports = {
                                     use: `imagemin-mozjpeg`
                                 }
                             ]
-                            }
                         }
-                ] 
+                    }
+                ]
             }
         ]
     },
@@ -167,11 +191,8 @@ module.exports = {
         new webpack.HashedModuleIdsPlugin(),
         new webpack.optimize.ModuleConcatenationPlugin(),
         new MiniCssExtractPlugin({
-            filename:  `css/[name].[contenthash:8].css`,
-            chunkFilename:  `css/[name].[contenthash:8].css`
-        }),
-        new PurifyCSSPlugin({
-            paths: glob.sync(path.join(__dirname, './*.html')),
+            filename: path.posix.join('static', `css/[name].[contenthash:8].css`) ,
+            chunkFilename:  path.posix.join('static', `css/[name].[contenthash:8].css`)
         }),
         new CleanWebpackPlugin({
             // 根目录
@@ -183,6 +204,6 @@ module.exports = {
             // 启用删除文件
             dry: false
         })
-        
+
     ]
 };

@@ -70,7 +70,7 @@
             </el-table>
 
 
-            <div class="block" style="margin-top:15px;float:right;">
+            <div class="block" style="margin-top:10px;float:right;">
                 <el-pagination align='center' @size-change="handleSizeChange" @current-change="handleCurrentChange"
                                :current-page="currentPage" :page-sizes="[1,5,10,20]" :page-size="pageSize"
                                layout="total, sizes, prev, pager, next, jumper" :total="tableData.length">
@@ -109,6 +109,7 @@
             }
         },
         activated() {
+            this.$store.commit('setActiveMenuIndex', "1");
             this.queryAppId = this.$route.query.appId;
             this.queryAppName = this.$route.query.appName;
             //加载app详情
@@ -149,14 +150,11 @@
                 });
             },
             handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
                 this.currentPage = 1;
                 this.pageSize = val;
             },
             handleCurrentChange(val) {
-                console.log(`当前页: ${val}`);
                 this.currentPage = val;
-
             },
             handleAppLink(row, id) {
                 this.$router.push({

@@ -25,7 +25,8 @@
                 <el-table-column
                         prop="chainName"
                         label="链名称"
-                        width="280">
+                        width="280"
+                        :show-overflow-tooltip="true">
                 </el-table-column>
                 <el-table-column
                         prop="chainVersion"
@@ -56,6 +57,7 @@
                     </template>
                 </el-table-column>
             </el-table>
+
         </div>
 
         <el-dialog title="创建应用" :visible.sync="uploadDialogVisible">
@@ -130,11 +132,11 @@
             }
         },
         activated: function () {
+            this.$store.commit('setActiveMenuIndex', "1");
             this.loadData();
         },
         methods: {
             loadData(){
-                console.log("loadData");
                 let self = this;
                 self.tableData = [];
                 self.gridLoading = true;
