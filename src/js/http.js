@@ -52,7 +52,7 @@ export function request(params) {
             headers: headers
         }).then(response => {
             if (response.status === 200) {
-                resolve(response.data)
+                resolve(response.data);
             } else {
                 console.log(codeMessage[response.status] || `${code}: 请求失败`)
             }
@@ -60,7 +60,7 @@ export function request(params) {
             if (reject) {
                 reject(error)
             } else {
-                console.log('common error func')
+                this.$message.error(error.response.data.errorMessage);
             }
         })
     })

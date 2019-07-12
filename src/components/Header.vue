@@ -12,7 +12,7 @@
                          @select="handleSelect"
                          mode="horizontal"
                          :router="use_router">
-                    <el-menu-item index="1" :route="{path: '/app'}">我的应用</el-menu-item>
+                    <el-menu-item index="1" :route="{path: '/app'}">我的链</el-menu-item>
                     <el-menu-item index="2" :route="{path: '/transactionLog'}">日志</el-menu-item>
                     <!--<el-menu-item index="3">链码中心</el-menu-item>-->
                 </el-menu>

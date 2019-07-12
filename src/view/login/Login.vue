@@ -40,8 +40,8 @@
     <footer id="fotb" style="width:100%;height:60px;position:fixed;bottom:0;color:#fff;line-height: 60px;">
       <div id="copyright" class="container">
         <p class="ver_wrap"><span style="text-align: center;">© 版权所有 |</span>
-          <span style="text-align: center;"><a href="http://www.richwaytec.com">远光软件技术有限公司 |</a></span><a href="http://www.richwaytec.com">
-            <span style="margin-left:10px;">京ICP备17058539号</span>
+          <span style="text-align: center;"><a href="http://www.richwaytec.com">远光软件技术有限公司 </a></span><a href="http://www.richwaytec.com">
+            <span style="margin-left:10px;"></span>
           </a></p><a href="http://www.richwaytec.com">
       </a></div><a href="http://www.richwaytec.com">
     </a></footer>
@@ -66,7 +66,7 @@ export default {
         }
     },
     mounted() {
-        this.$store.commit(types.TITLE, 'Login');
+        this.$store.commit("setUserName", 'Login');
     },
     methods: {
         submitForm(formName) {
@@ -88,17 +88,15 @@ export default {
                 url:'/user/login',
                 method: "post",
                 data:datas
-            }).then(res => {
-                console.log(res);
-                if (res.code == 10000) {
-                    self.fullscreenLoading = false;
-                    localStorage.setItem('userName', res.data.userName);
-                    // localStorage.setItem('accessToken', res.data.token);
-                    // this.$store.commit(types.LOGIN,  res.data.token)
-                    this.$router.push(this.$route.query.redirect || '/');
-                } else {
-                    this.$message.error(res.errorMsg);
-                }
+            }).then(data => {
+                self.fullscreenLoading = false;
+                localStorage.setItem('userName', data.userName);
+                // localStorage.setItem('accessToken', res.data.token);
+                // this.$store.commit(types.LOGIN,  res.data.token)
+                this.$router.push(this.$route.query.redirect || '/');
+                this.fullscreenLoading = false;
+            }, error => {
+                this.$message.error(error.response.data.errorMessage);
                 this.fullscreenLoading = false;
             });
         }

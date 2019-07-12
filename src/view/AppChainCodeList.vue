@@ -4,7 +4,7 @@
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
                 <el-button type="primary" icon="el-icon-edit" @click="updateChaincodes">获取安装情况</el-button>
-                <el-button type="primary" icon="el-icon-edit" @click="installDialogVisible = true">安装链码</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="installDialogVisible = true;">安装链码</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="openInitDialog">初始化链码</el-button>
                 <el-input
                         v-model="search"
@@ -54,11 +54,11 @@
                 </el-pagination>
             </div>
 
-            <el-dialog title="安装链码" :visible.sync="installDialogVisible">
-                <el-form :model="installForm">
-                    <el-form-item label="选择Peer节点" :label-width="formLabelWidth">
+            <el-dialog title="安装链码" :visible.sync="installDialogVisible" :before-close="resetUploadDialog">
+                <el-form :model="installForm" ref="installForm1">
+                    <el-form-item label="选择Peer节点" :label-width="formLabelWidth" prop="peers">
                         <el-select
-                                v-model="selectPeers"
+                                v-model="installForm.peers"
                                 multiple
                                 collapse-tags
                                 placeholder="请选择"
@@ -72,10 +72,10 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="链码名称" :label-width="formLabelWidth">
+                    <el-form-item label="链码名称" :label-width="formLabelWidth" prop="name">
                         <el-input v-model="installForm.name" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="链码版本" :label-width="formLabelWidth">
+                    <el-form-item label="链码版本" :label-width="formLabelWidth" prop="version">
                         <el-input v-model="installForm.version" autocomplete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="链码文件" :label-width="formLabelWidth">
@@ -98,23 +98,24 @@
                     </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="installDialogVisible = false">取 消</el-button>
+                    <el-button @click="installDialogVisible = false;resetUploadDialog();">取 消</el-button>
                     <el-button type="primary" @click="chainCodeSubmit">确 定</el-button>
                 </div>
             </el-dialog>
 
 
-            <el-dialog title="初始化链码" :visible.sync="initDialogVisible"
+            <el-dialog title="初始化链码" :before-close="resetInitDialog"
+                       :visible.sync="initDialogVisible"
                        v-loading="initializeDialogLoading"
                        element-loading-text="拼命初始化中，估计得一分钟"
                        element-loading-spinner="el-icon-loading"
                        element-loading-background="rgba(0, 0, 0, 0.1)">
-                <el-form :model="initializeForm">
+                <el-form :model="initializeForm" ref="initializeForm1">
                     <el-form-item label="当前通道" :label-width="formLabelWidth">
                         <el-input v-model="queryChannelName" autocomplete="off" :disabled="true"
                                   style="width: 200px;"></el-input>
                     </el-form-item>
-                    <el-form-item label="选择链码" :label-width="formLabelWidth">
+                    <el-form-item label="选择链码" :label-width="formLabelWidth" prop="chainCode">
                         <el-select
                                 v-model="initializeForm.chainCode"
                                 filterable
@@ -132,7 +133,7 @@
                     </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="initDialogVisible = false">取 消</el-button>
+                    <el-button @click="initDialogVisible = false; resetInitDialog();">取 消</el-button>
                     <el-button type="primary" @click="initializeSubmit">初始化</el-button>
                 </div>
             </el-dialog>
@@ -163,6 +164,7 @@
                 queryAppId: "",
                 queryChannelName: "",
                 installForm: {
+                    peers: [],
                     name: "",
                     version: "",
                 },
@@ -170,7 +172,6 @@
                     chainCode: ""
                 },
                 peers: [],
-                selectPeers: [],
                 uploadExtraData: {
                     "attachmentType": "java_chain_code",
                 },
@@ -192,13 +193,24 @@
                 method: 'get',
                 url: '/app/queryPeersByChannel',
                 data: {"appId": this.queryAppId, "channelName": this.queryChannelName}
-            }).then(res => {
-                if (res.code == 10000) {
-                    self.peers = res.data;
-                }
+            }).then(data => {
+                self.peers = data;
             });
         },
         methods: {
+            resetUploadDialog(done){
+                this.$refs.uploadDemo.clearFiles();
+                this.$refs.installForm1.resetFields();
+                if (!!done) {
+                    done();
+                }
+            },
+            resetInitDialog(done){
+                this.$refs.initializeForm1.resetFields();
+                if (!!done) {
+                    done();
+                }
+            },
             filterData() {
                 return this.tableData.filter(data => !this.search || data.chainCodeName.toLowerCase().includes(this.search.toLowerCase()));
             },
@@ -210,12 +222,9 @@
                     method: 'get',
                     url: '/chaincode/InitializeList',
                     data: {"appId": this.queryAppId, "channelName": this.queryChannelName}
-                }).then(res => {
+                }).then(data => {
                     self.gridLoading = false;
-                    console.log(res);
-                    if (res.code == 10000) {
-                        self.tableData = res.data;
-                    }
+                    self.tableData = data;
                 });
             },
             handleSizeChange(val) {
@@ -231,8 +240,8 @@
                 return this.api_host + "/attachment/upload";
             },
             uploadSuccess(response, file, fileList) {
-                if (response.code == 10000) {
-                    this.uploadAttachId = response.data.id;
+                if (!!response.id) {
+                    this.uploadAttachId = response.id;
                 } else {
                     this.uploadAttachId = null;
                     this.$message.error("上传文件失败");
@@ -246,40 +255,33 @@
                     url: '/chaincode/installJava',
                     data: {
                         "appId": this.queryAppId,
-                        "peerNames": this.selectPeers.map(function (i) {
-                            return i;
-                        }).join(","),
+                        "peerNames": this.installForm.peers.join(","),
                         "chaincodeName": this.installForm.name,
                         "chaincodeVersion": this.installForm.version,
                         "attachmentId": this.uploadAttachId,
                     }
-                }).then(res => {
-                    if (res.code == 10000) {
-                        var data = res.data;
-                        var hasError = false;
-                        for (var i = 0; i < data.length; i++) {
-                            var item = data[i];
-                            if (item["statusCode"] != 200) {
-                                var message1 = "链码" + self.installForm.name + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["message"];
-                                //self.$message.error(message1);
-                                self.$message({
-                                    showClose: true,
-                                    duration: 0,
-                                    type: 'error',
-                                    message: message1
-                                });
-                                hasError = true;
-                                break;
-                            }
+                }).then(data => {
+                    var hasError = false;
+                    for (var i = 0; i < data.length; i++) {
+                        var item = data[i];
+                        if (item["success"] != true) {
+                            var message1 = "链码" + self.installForm.name + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["errorInfo"]["errorMessage"];
+                            //self.$message.error(message1);
+                            self.$message({
+                                showClose: true,
+                                duration: 0,
+                                type: 'error',
+                                message: message1
+                            });
+                            hasError = true;
+                            break;
                         }
-                        if (!hasError) {
-                            this.$message.success("安装成功!");
-                            setTimeout(function () {
-                                self.installDialogVisible = false;
-                            }, 500);
-                        }
-                    } else {
-                        this.$message.error("系统错误!");
+                    }
+                    if (!hasError) {
+                        this.$message.success("安装成功!");
+                        setTimeout(function () {
+                            self.installDialogVisible = false;
+                        }, 500);
                     }
                 });
             },
@@ -292,12 +294,8 @@
                         "channeName": this.queryChannelName,
                     }
                 }).then(res => {
-                    if (res.code == 10000) {
-                        this.$message.success("更新成功!");
-                        this.loadGridData();
-                    } else {
-                        this.$message.error(response.errorMsg);
-                    }
+                    this.$message.success("更新成功!");
+                    this.loadGridData();
                 });
             },
             status_format(row, column, cellValue, index) {
@@ -315,28 +313,38 @@
                         "appId": this.queryAppId,
                         "channelName": this.queryChannelName,
                     }
-                }).then(res => {
-                    if (res.code == 10000) {
-                        self.installChaincodesList = res.data;
-                        res.data.forEach(function (item) {
-                            var initialize = item.initialize ? "(已初始化)" : "";
-                            item.key = item.chainCodeName + "::" + item.chainCodeVersion;
-                            item.label = item.chainCodeName + "::" + item.chainCodeVersion + initialize;
-                            item.disabled = item.initialize;
-                        });
-                        self.installChaincodesOption = res.data;
-                        this.initDialogVisible = true;
-                    } else {
-                        this.$message.error("加载安装链码数据失败!");
-                    }
+                }).then(data => {
+                    self.installChaincodesList = data;
+                    data.forEach(function (item) {
+                        var initialize = item.initialize ? "(已初始化)" : "";
+                        item.key = item.chainCodeName + "::" + item.chainCodeVersion;
+                        item.label = item.chainCodeName + "::" + item.chainCodeVersion + initialize;
+                        item.disabled = item.initialize;
+                    });
+                    self.installChaincodesOption = data;
+                    this.initDialogVisible = true;
                 });
             },
             initializeSubmit() {
                 var self = this;
+
+                // var d1 = "chaincode: testerror:v1 Instantiate Failure, failed with Channel Channel{id: 1, name: mychannel} sending proposal with transaction 3b6ee73ff3ae46435ef8c3ec8f21f1a6454b92fafd5c8f1c3a485ad00c5cae58 to Peer{ id: 3, name: peer0.org1.example.com, channelName: mychannel, url: grpc://10.121.60.17:7051} failed because of timeout(120000 milliseconds) expiration, on peer Peer{ id: 3, name: peer0.org1.example.com, channelName: mychannel, url: grpc://10.121.60.17:7051}";
+                // d1 = d1 + d1;
+                // d1 = d1 + d1;
+                // d1 = d1 + d1;
+                // self.$message({
+                //     showClose: true,
+                //     duration: 0,
+                //     type: 'error',
+                //     dangerouslyUseHTMLString: true,
+                //     message: '<div><strong>链码初始化上失败，失败原因: </strong><div contenteditable="true"  style="max-height: 300px; margin: 10px 10px;">' + d1 + '</div></div>'
+                // });
+                // return ''
                 if (this.initializeForm.chainCode == "") {
                     this.$message.error("请选择一个链码");
                     return;
                 }
+                // debugger;
                 var chainCodeData = this.initializeForm.chainCode.split("::");
                 var chainCodeName = chainCodeData[0];
                 var chainCodeVersion = chainCodeData[1];
@@ -350,24 +358,21 @@
                         "chaincodeName": chainCodeName,
                         "chaincodeVersion": chainCodeVersion,
                     }
-                }).then(res => {
+                }).then(data => {
+                    // debugger;
                     self.initializeDialogLoading = false;
-                    console.log(res);
-                    if (res.code == 10000) {
-                        if (res.data && res.data.statusCode == 200) {
-                            this.$message.success("初始化成功!");
-                            self.initDialogVisible = false;
-                            self.loadGridData();
-                        } else {
-                            self.$message({
-                                showClose: true,
-                                duration: 0,
-                                type: 'error',
-                                message: "链码初始化上失败，失败原因:" + res.data.message
-                            });
-                        }
+                    if (data && data.success == true) {
+                        this.$message.success("初始化成功!");
+                        self.initDialogVisible = false;
+                        self.loadGridData();
                     } else {
-                        self.$message.error("系统错误!");
+                        self.$message({
+                            showClose: true,
+                            duration: 0,
+                            type: 'error',
+                            dangerouslyUseHTMLString: true,
+                            message: '<strong>链码初始化上失败，失败原因: <div style="max-height: 500px; overflow-y: auto;">' + data["errorInfo"]["errorMessage"] + '</div></strong>'
+                        });
                     }
                 });
             },
@@ -375,7 +380,7 @@
                 return "/#/transactionLog?appId=fc77ec9e04c34c99afd277b1774d4a3e&channelName=mychannel&chainCodeName=test11";
             },
             buildTitle() {
-                return "我的应用/" + this.queryAppName + "/" + this.queryChannelName;
+                return "我的链/" + this.queryAppName + "/" + this.queryChannelName;
             }
         }
     }

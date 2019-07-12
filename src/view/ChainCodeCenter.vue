@@ -1,10 +1,10 @@
 <template>
     <div style="width:100%;height:100%;">
-        <TitlePage title="我的应用/链码列表" desc=""></TitlePage>
+        <TitlePage title="我的链/链码列表" desc=""></TitlePage>
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
                 <el-button type="primary" icon="el-icon-edit" @click="createDialogVisible = true">更新列表</el-button>
-                <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true">安装链码</el-button>
+                <el-button type="primary" icon="el-icon-edit" @click="uploadDialogVisible = true;">安装链码</el-button>
             </el-row>
             <el-table
                     :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"

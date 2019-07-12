@@ -3,8 +3,18 @@
         <TitlePage title="日志中心" desc=""></TitlePage>
         <div class="table-container">
             <el-form :inline="true" :model="form1" ref="form1" class="demo-form-inline">
-                <el-form-item label="应用" prop="appIdField.val">
-                    <el-select v-model="form1.appIdField.val" @change="appIdFieldChange" clearable placeholder="所属应用">
+                <el-form-item label="交易日期" prop="timeField">
+                    <el-date-picker
+                            v-model="form1.timeField"
+                            align="right"
+                            type="date"
+                            :clearable="false"
+                            placeholder="选择日期"
+                            :picker-options="pickerOptions21">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="连接" prop="appIdField.val">
+                    <el-select v-model="form1.appIdField.val" @change="appIdFieldChange" clearable placeholder="所属连接">
                         <el-option
                                 v-for="item in form1.appIdField.options"
                                 :key="item.value"
@@ -37,24 +47,18 @@
                 <el-form-item label="交易类型" prop="methodField.val">
                     <el-select v-model="form1.methodField.val" placeholder="交易类型">
                         <el-option label="所有" value=""></el-option>
-                        <el-option label="invoke" value="invoke"></el-option>
-                        <el-option label="query" value="query"></el-option>
-                        <el-option label="asyn_invoke" value="asyn_invoke"></el-option>
+                        <el-option label="交易" value="invoke"></el-option>
+                        <el-option label="查询" value="query"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="交易时间" prop="timeField">
-                    <el-date-picker
-                            v-model="form1.timeField"
-                            type="daterange"
-                            align="right"
-                            unlink-panels
-                            :picker-options="pickerOptions2"
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期">
-                    </el-date-picker>
-                </el-form-item>
                 <br/>
+                <el-form-item label="交易结果" prop="statusField.val">
+                    <el-select v-model="form1.statusField.val" placeholder="交易结果">
+                        <el-option label="所有" value=""></el-option>
+                        <el-option label="成功" value="success"></el-option>
+                        <el-option label="失败" value="failure"></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="交易ID" prop="transactionIdField">
                     <el-input v-model="form1.transactionIdField" placeholder="交易ID" clearable>
                     </el-input>
@@ -72,23 +76,25 @@
                     style="width: 100%">
                 <el-table-column
                         prop="appName"
-                        label="应用"
+                        label="连接"
                         width="120"
                         :show-overflow-tooltip="true"> 
                 </el-table-column>
                 <el-table-column
-                        prop="transactionOrgMsp"
-                        label="组织MSP"
-                        width="100">
-                </el-table-column>
-                <el-table-column
                         prop="channelName"
                         label="通道"
-                        width="100">
+                        width="120"
+                        :show-overflow-tooltip="true">
                 </el-table-column>
                 <el-table-column
                         prop="chainCodeName"
                         label="链码"
+                        width="100"
+                        :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column
+                        prop="transactionOrgMsp"
+                        label="发起组织"
                         width="100">
                 </el-table-column>
                 <el-table-column
@@ -120,7 +126,8 @@
                 </el-table-column>
                 <el-table-column
                         prop="transactionCostTime"
-                        label="交易耗时(毫秒)">
+                        label="交易耗时(毫秒)"
+                        width="120">
                 </el-table-column>
                 <el-table-column
                         prop="blockStatus"
@@ -232,7 +239,10 @@
                     methodField: {
                         val: "",
                     },
-                    timeField: [new Date(), new Date()],
+                    statusField: {
+                        val: "",
+                    },
+                    timeField: this.getInitDate(),
                     transactionIdField: "",
                 },
                 fileListLimit: 1,
@@ -241,27 +251,28 @@
                 uploadDialogVisible: false,
                 bpi: false,
                 formLabelWidth: '120px',
-                pickerOptions2: {
+                pickerOptions21: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now();
+                    },
                     shortcuts: [{
                         text: '今天',
                         onClick(picker) {
-                            picker.$emit('pick', [new Date(), new Date()]);
+                            picker.$emit('pick', new Date());
                         }
                     }, {
-                        text: '最近一周',
+                        text: '昨天',
                         onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                            picker.$emit('pick', [start, end]);
+                            const date = new Date();
+                            date.setTime(date.getTime() - 3600 * 1000 * 24);
+                            picker.$emit('pick', date);
                         }
                     }, {
-                        text: '最近一个月',
+                        text: '一周前',
                         onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                            picker.$emit('pick', [start, end]);
+                            const date = new Date();
+                            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', date);
                         }
                     }]
                 },
@@ -275,15 +286,22 @@
             }
         },
         activated: function () {
+            //配置菜单
             this.$store.commit('setActiveMenuIndex', "2");
-            this.queryParam.appId= this.$route.query.appId;
-            this.queryParam.channelName= this.$route.query.channelName;
-            this.queryParam.chainCodeName= this.$route.query.chainCodeName;
-            this.$refs["form1"].resetFields();
-            this.appIdFieldLoadData();
-            this.table1LoadData();
+            this.form1.appIdField.val = this.$route.query.appId;
+            this.form1.channelNameField.val = this.$route.query.channelName;
+            this.form1.chainCodeIdField.val = this.$route.query.chainCodeName;
+            this.appIdFieldLoadData(this.table1LoadData);
         },
         methods: {
+            getInitDate(){
+                //昨天
+                // const date = new Date();
+                // date.setTime(date.getTime() - 3600 * 1000 * 24);
+                // return date;
+                //今天
+                return new Date();
+            },
             resetAppIdField() {
                 this.form1.appIdField.val = "";
                 this.form1.appIdField.options = [];
@@ -296,25 +314,28 @@
                 this.form1.chainCodeIdField.val = "";
                 this.form1.chainCodeIdField.options = [];
             },
-            appIdFieldLoadData() {
+            appIdFieldLoadData(call) {
+                // 加载应用选择框
                 let self = this;
                 this.resetAppIdField();
                 self.$http({
                     method: 'get',
                     url: '/app/list'
-                }).then(res => {
-                    if (res.code == 10000) {
-                        self.form1.appIdField.options = res.data.map(function (item) {
-                            return {"label": item.appName, "value": item.id};
-                        });
-                        if(!!this.queryParam.appId){
-                            this.form1.appIdField.val = this.queryParam.appId;
-                            this.appIdFieldChange(this.form1.appIdField.val);
+                }).then(data => {
+                    self.form1.appIdField.options =data.map(function (item) {
+                        return {"label": item.appName, "value": item.id};
+                    });
+                    if(!!this.$route.query.appId){
+                        this.form1.appIdField.val = this.$route.query.appId;
+                        this.appIdFieldChange(this.$route.query.appId, call);
+                    } else {
+                        if(!!call){
+                            call();
                         }
                     }
                 });
             },
-            appIdFieldChange(val) {
+            appIdFieldChange(val, call) {
                 let self = this;
                 this.resetChannelNameField();
                 this.resetChainCodeIdField();
@@ -325,20 +346,22 @@
                         data: {
                             appId: val
                         }
-                    }).then(res => {
-                        if (res.code == 10000) {
-                            self.form1.channelNameField.options = res.data.map(function (item) {
-                                return {"label": item.channelName, "value": item.channelName};
-                            });
-                            if(!!this.queryParam.channelName){
-                                this.form1.channelNameField.val = this.queryParam.channelName;
-                                this.channelNameFieldChange(this.form1.channelNameField.val);
+                    }).then(data => {
+                        self.form1.channelNameField.options = data.map(function (item) {
+                            return {"label": item.channelName, "value": item.channelName};
+                        });
+                        if(!!self.$route.query.channelName){
+                            self.form1.channelNameField.val = self.$route.query.channelName;
+                            self.channelNameFieldChange(this.form1.channelNameField.val, call);
+                        } else {
+                            if(!!call){
+                                call();
                             }
                         }
                     });
                 }
             },
-            channelNameFieldChange(val) {
+            channelNameFieldChange(val, call) {
                 let self = this;
                 this.resetChainCodeIdField();
                 if (val != "") {
@@ -350,14 +373,15 @@
                             appId: self.form1.appIdField.val,
                             channelName: val
                         }
-                    }).then(res => {
-                        if (res.code == 10000) {
-                            self.form1.chainCodeIdField.options = res.data.map(function (item) {
-                                return {"label": item.chainCodeName, "value": item.chainCodeName};
-                            });
-                            if(!!this.queryParam.chainCodeName){
-                                this.form1.chainCodeIdField.val = this.queryParam.chainCodeName;
-                            }
+                    }).then(data => {
+                        self.form1.chainCodeIdField.options = data.map(function (item) {
+                            return {"label": item.chainCodeName, "value": item.chainCodeName};
+                        });
+                        if(!!self.$route.query.chainCodeName){
+                            this.form1.chainCodeIdField.val = self.$route.query.chainCodeName;
+                        }
+                        if(!!call){
+                            call();
                         }
                     });
                 }
@@ -375,21 +399,18 @@
                             channelName: self.form1.channelNameField.val,
                             chainCodeName: self.form1.chainCodeIdField.val,
                             method: self.form1.methodField.val,
+                            status: self.form1.statusField.val,
                             transactionId: self.form1.transactionIdField,
-                            startTime: self.form1.timeField[0],
-                            endTime: self.form1.timeField[1],
+                            transactionDate: self.formatTime(self.form1.timeField, 'yyyy-MM-dd'),
                             pageNum: self.table1.current,
                             pageSize: self.table1.size,
                         }
-                    }).then(res => {
+                    }).then(data => {
                         self.table1.loading = false;
-                        console.log(res);
-                        if (res.code == 10000) {
-                            self.table1.records = res.data.records;
-                            self.table1.total = res.data.total;
-                            self.table1.pages = res.data.pages;
-                            self.table1.size = res.data.size;
-                        }
+                        self.table1.records = data.records;
+                        self.table1.total = data.total;
+                        self.table1.pages = data.pages;
+                        self.table1.size = data.size;
                     });
                 }
             },
@@ -403,111 +424,31 @@
                     data: {
                         "transactionId": row["transactionId"],
                     }
-                }).then(res => {
-                    if (res.code == 10000) {
-                        $self.detailData = [
-                            {"prop": "交易ID", "value": res.data.transactionId},
-                            {"prop": "应用名称", "value": appName},
-                            {"prop": "通道名称", "value": res.data.channelName},
-                            {"prop": "组织msp", "value": res.data.transactionOrgMsp},
-                            {"prop": "链码名称", "value": res.data.chainCodeName},
-                            {"prop": "交易发起时间", "value": $self.formatTime(res.data.transactionStartTime)},
-                            {"prop": "交易方式", "value": res.data.transactionType},
-                            {"prop": "交易路径", "value": res.data.transactionPath},
-                            {"prop": "交易请求参数", "value": res.data.transactionParameter},
-                            {"prop": "交易返回结果", "value": res.data.transactionResponse},
-                            {"prop": "交易状态", "value": $self.getTransactionStatus(res.data.transactionStatus)},
-                            {"prop": "上链状态", "value": $self.getBlockStatus(res.data.transactionType, res.data.transactionStatus, res.data.blockStatus)},
-                            {"prop": "区块高度", "value": res.data.blockNumber},
-                            {"prop": "区块数据HASH", "value": res.data.dataHash},
-                            {"prop": "区块HASH", "value": res.data.blockHash},
-                            {"prop": "父区块HASH", "value": res.data.previousHash},
-                            {"prop": "交易时间戳", "value": $self.formatTime(res.data.timeStamp)},
-                        ];
-                        if(!!res.data.blockRecordFailResponse){
-                            $self.detailData.push({"prop": "上链失败原因", "value": res.data.blockRecordFailResponse});
-                        }
+                }).then(data => {
+                    $self.detailData = [
+                        {"prop": "交易ID", "value": data.transactionId},
+                        {"prop": "交易发起时间", "value": $self.formatTime(data.transactionStartTime)},
+                        {"prop": "连接名称", "value": appName},
+                        {"prop": "通道名称", "value": data.channelName},
+                        {"prop": "组织msp", "value": data.transactionOrgMsp},
+                        {"prop": "链码名称", "value": data.chainCodeName},
+                        {"prop": "交易方式", "value": data.transactionType},
+                        {"prop": "交易路径", "value": data.transactionPath},
+                        {"prop": "交易请求参数", "value": data.transactionParameter},
+                        {"prop": "交易返回结果", "value": data.transactionResponse},
+                        {"prop": "交易状态", "value": $self.getTransactionStatus(data.transactionStatus)},
+                        {"prop": "上链状态", "value": $self.getBlockStatus(data.transactionType, data.transactionStatus, data.blockStatus)},
+                        {"prop": "区块高度", "value": data.blockNumber},
+                        {"prop": "区块数据HASH", "value": data.dataHash},
+                        {"prop": "区块HASH", "value": data.blockHash},
+                        {"prop": "父区块HASH", "value": data.previousHash},
+                        {"prop": "交易时间戳", "value": $self.formatTime(data.timeStamp)},
+                    ];
+                    if(!!data.blockRecordFailResponse){
+                        $self.detailData.push({"prop": "上链失败原因", "value": data.blockRecordFailResponse});
+                    }
                         
-                    }
                 });
-            },
-            UploadUrl() {
-                return this.api_host + "/attachment/upload?attachmentType=chain_code_card";
-                this.$router.go(0);
-            },
-            handleClose(done) {
-                this.$confirm('确认关闭？')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {
-                    });
-            },
-            createAppByFile() {
-                var appName = this.uploadForm.name;
-                var attachId = this.attachId;
-                if (!!!appName) {
-                    this.$message.error('应用名称必须填写');
-                    return;
-                }
-                if (!!!attachId) {
-                    this.$message.error('配置文件必须上传');
-                    return;
-                }
-                this.$http({
-                    method: 'post',
-                    url: '/app/create',
-                    data: {
-                        "appName": appName,
-                        "attachmentId": attachId,
-                    }
-                }).then(res => {
-                    if (res.code == 10000) {
-                        this.$message.success('创建应用成功');
-                        this.uploadDialogVisible = false;
-                        this.table1LoadData();
-                    } else {
-                        this.$message.error('创建应用失败');
-                    }
-                });
-            },
-            fileUploadSuccess(response, file, fileList) {
-                if (response.code == 10000) {
-                    this.attachId = response.data.id;
-                } else {
-                    this.attachId = null;
-                    this.$message.error("上传文件失败");
-                    this.$refs.uploadDemo.clearFiles();
-                }
-            },
-            deleteApp(row) {
-                this.$confirm('此操作将永久删除该应用, 是否继续?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.$http({
-                        method: 'get',
-                        url: '/app/delete_by_id',
-                        data: {
-                            "appId": row.id
-                        }
-                    }).then(res => {
-                        console.log(res);
-                        if (res.code == 10000) {
-                            this.$message.success('删除应用成功');
-                            this.table1LoadData();
-                        } else {
-                            this.$message.error('删除应用失败');
-                        }
-                    });
-                }).catch(() => {
-                    this.$message({
-                        type: 'info',
-                        message: '已取消删除'
-                    });
-                });
-
             },
             handleSizeChange(val) {
                 this.table1.size = val;
@@ -556,10 +497,7 @@
             },
             resetForm(formName) {
                 this.$refs[formName].resetFields();
-                if(!!this.queryParam.appId){
-                    this.appIdFieldLoadData();
-                }
-                this.table1LoadData();
+                this.appIdFieldLoadData(this.table1LoadData);
             },
             formatTime(dt, fmt) {
                 if(dt == "" || dt == null || dt == undefined){

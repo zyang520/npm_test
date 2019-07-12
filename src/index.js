@@ -25,7 +25,8 @@ Vue.use(http);
 const store = new Vuex.Store({
     state: {
         count: 0,
-        activeMenuIndex:""
+        activeMenuIndex:"",
+        userName:"",
     },
     mutations: {
         increment (state) {
@@ -34,6 +35,9 @@ const store = new Vuex.Store({
         //修改当前显示的菜单
         setActiveMenuIndex(state, index){
             state.activeMenuIndex = index;
+        },
+        setUserName(state, name){
+            state.userName = name;
         }
     }
 });

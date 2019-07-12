@@ -5,7 +5,7 @@
             <h2>基本信息</h2>
             <ul>
                 <li>
-                    <span>应用名称：</span>
+                    <span>连接名称：</span>
                     <span>{{detailData.appName}}</span>
                 </li>
                 <li>
@@ -117,17 +117,15 @@
                 method: 'get',
                 url: '/app/getById',
                 data: {"appId": this.queryAppId}
-            }).then(res => {
-                if (res.code == 10000) {
-                    this.detailData.appName = res.data.appName;
-                    this.detailData.apiKey = res.data.apiKey;
-                    this.detailData.secretKey = res.data.secretKey;
-                    this.detailData.chainName = res.data.chainName;
-                    this.detailData.chainVersion = res.data.chainVersion;
-                    this.detailData.createTime = res.data.createTime;
-                    this.detailData.lastUpdateTime = res.data.lastUpdateTime;
-                    this.detailData.clientOrg = res.data.clientOrg;
-                }
+            }).then(data => {
+                this.detailData.appName = data.appName;
+                this.detailData.apiKey = data.apiKey;
+                this.detailData.secretKey = data.secretKey;
+                this.detailData.chainName = data.chainName;
+                this.detailData.chainVersion = data.chainVersion;
+                this.detailData.createTime = data.createTime;
+                this.detailData.lastUpdateTime = data.lastUpdateTime;
+                this.detailData.clientOrg = data.clientOrg;
             });
             this.loadChannelData();
         },
@@ -141,12 +139,9 @@
                     method: 'get',
                     url: '/channel/list',
                     data: {"appId": this.queryAppId}
-                }).then(res => {
+                }).then(data => {
                     self.gridLoading = false;
-                    if (res.code == 10000) {
-                        var data = res.data;
-                        this.tableData = data;
-                    }
+                    this.tableData = data;
                 });
             },
             handleSizeChange(val) {
@@ -173,7 +168,7 @@
                 }).join(",");
             },
             buildTitle() {
-                return "我的应用/" + this.queryAppName;
+                return "我的链/" + this.queryAppName;
             }
         }
     }
