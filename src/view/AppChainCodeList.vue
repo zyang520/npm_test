@@ -4,6 +4,7 @@
         <div class="table-container">
             <el-row style="margin-bottom: 10px;">
                 <el-button type="primary" icon="el-icon-edit" @click="updateChaincodes">获取安装情况</el-button>
+                <!--<el-button type="primary" icon="el-icon-edit" @click="showErrorDialog2">获取安装情况</el-button>-->
                 <el-button type="primary" icon="el-icon-edit" @click="installDialogVisible = true;">安装链码</el-button>
                 <el-button type="primary" icon="el-icon-edit" @click="openInitDialog">初始化链码</el-button>
                 <el-input
@@ -81,25 +82,25 @@
                     <el-form-item label="链码文件" :label-width="formLabelWidth">
                         <el-upload
                                 class="upload-demo"
-                                ref="uploadDemo"
+                                ref="uploadInstallField"
                                 name="file"
                                 drag
-                                :data="uploadExtraData"
+                                :data="uploadInstallExtraData"
                                 :action="uploadUrl()"
                                 multiple
-                                :on-success="uploadSuccess"
+                                :on-success="uploadInstallSuccess"
                                 :auto-upload="true"
                                 :limit="fileListLimit"
                         >
                             <i class="el-icon-upload"></i>
                             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                            <div class="el-upload__tip" slot="tip">只能上传.zip文件，且不超过100M</div>
+                            <div class="el-upload__tip" slot="tip">只能上传.gzip文件，且不超过100M</div>
                         </el-upload>
                     </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="installDialogVisible = false;resetUploadDialog();">取 消</el-button>
-                    <el-button type="primary" @click="chainCodeSubmit">确 定</el-button>
+                    <el-button type="primary" @click="chainCodeSubmit();">确 定</el-button>
                 </div>
             </el-dialog>
 
@@ -131,25 +132,42 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="指定策略文件" :label-width="formLabelWidth">
+                        <el-upload
+                                class="upload-demo"
+                                ref="uploadInitField"
+                                name="file"
+                                drag
+                                :data="uploadInitExtraData"
+                                :action="uploadUrl()"
+                                multiple
+                                :on-success="uploadInitSuccess"
+                                :auto-upload="true"
+                                :limit="fileListLimit"
+                        >
+                            <i class="el-icon-upload"></i>
+                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                            <div class="el-upload__tip" slot="tip">只能上传.yaml文件，且不超过1M</div>
+                        </el-upload>
+                    </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="initDialogVisible = false; resetInitDialog();">取 消</el-button>
-                    <el-button type="primary" @click="initializeSubmit">初始化</el-button>
+                    <el-button type="primary" @click="initializeSubmit();">初始化</el-button>
                 </div>
             </el-dialog>
-
         </div>
     </div>
 </template>
 
 <script>
-    import TitlePage from '@/components/TitlePage'
-
+    import TitlePage from '@/components/TitlePage';
     export default {
         components: {
             TitlePage
         },
         data() {
+            let javaChainCode = "java_chain_code";
             return {
                 search: "",
                 gridLoading: false,
@@ -167,15 +185,19 @@
                     peers: [],
                     name: "",
                     version: "",
+                    uploadInstallId: null
                 },
                 initializeForm: {
-                    chainCode: ""
+                    chainCode: "",
+                    uploadInitId: null
                 },
                 peers: [],
-                uploadExtraData: {
+                uploadInstallExtraData: {
                     "attachmentType": "java_chain_code",
                 },
-                uploadAttachId: null,
+                uploadInitExtraData: {
+                    "attachmentType": "policy_file",
+                },
                 installChaincodesOption: [],
                 queryChaincodesLoading: false,
                 initializeDialogLoading: false
@@ -199,7 +221,7 @@
         },
         methods: {
             resetUploadDialog(done){
-                this.$refs.uploadDemo.clearFiles();
+                this.$refs.uploadInstallField.clearFiles();
                 this.$refs.installForm1.resetFields();
                 if (!!done) {
                     done();
@@ -239,13 +261,22 @@
             uploadUrl() {
                 return this.api_host + "/attachment/upload";
             },
-            uploadSuccess(response, file, fileList) {
+            uploadInstallSuccess(response, file, fileList) {
                 if (!!response.id) {
-                    this.uploadAttachId = response.id;
+                    this.installForm.uploadInstallId = response.id;
                 } else {
-                    this.uploadAttachId = null;
-                    this.$message.error("上传文件失败");
-                    this.$refs.uploadDemo.clearFiles();
+                    this.installForm.uploadInstallId = null;
+                    this.$message.error("链码文件上传失败");
+                    this.$refs.uploadInstallField.clearFiles();
+                }
+            },
+            uploadInitSuccess(response, file, fileList) {
+                if (!!response.id) {
+                    this.initializeForm.uploadInitId= response.id;
+                } else {
+                    this.initializeForm.uploadInitId = null;
+                    this.$message.error("策略文件上传失败");
+                    this.$refs.uploadInitField.clearFiles();
                 }
             },
             chainCodeSubmit() {
@@ -258,31 +289,17 @@
                         "peerNames": this.installForm.peers.join(","),
                         "chaincodeName": this.installForm.name,
                         "chaincodeVersion": this.installForm.version,
-                        "attachmentId": this.uploadAttachId,
+                        "attachmentId": this.installForm.uploadInstallId,
                     }
                 }).then(data => {
-                    var hasError = false;
-                    for (var i = 0; i < data.length; i++) {
-                        var item = data[i];
-                        if (item["success"] != true) {
-                            var message1 = "链码" + self.installForm.name + "在节点" + item["peerName"] + "上安装失败，失败原因:" + item["errorInfo"]["errorMessage"];
-                            //self.$message.error(message1);
-                            self.$message({
-                                showClose: true,
-                                duration: 0,
-                                type: 'error',
-                                message: message1
-                            });
-                            hasError = true;
-                            break;
-                        }
-                    }
-                    if (!hasError) {
-                        this.$message.success("安装成功!");
-                        setTimeout(function () {
-                            self.installDialogVisible = false;
-                        }, 500);
-                    }
+                    self.$message.success("安装成功!");
+                    self.installDialogVisible = false;
+                    self.resetUploadDialog();
+                }, error => {
+                    self.$alert({
+                        content:"安装出错",
+                        errorData:error.data
+                    });
                 });
             },
             updateChaincodes() {
@@ -327,24 +344,10 @@
             },
             initializeSubmit() {
                 var self = this;
-
-                // var d1 = "chaincode: testerror:v1 Instantiate Failure, failed with Channel Channel{id: 1, name: mychannel} sending proposal with transaction 3b6ee73ff3ae46435ef8c3ec8f21f1a6454b92fafd5c8f1c3a485ad00c5cae58 to Peer{ id: 3, name: peer0.org1.example.com, channelName: mychannel, url: grpc://10.121.60.17:7051} failed because of timeout(120000 milliseconds) expiration, on peer Peer{ id: 3, name: peer0.org1.example.com, channelName: mychannel, url: grpc://10.121.60.17:7051}";
-                // d1 = d1 + d1;
-                // d1 = d1 + d1;
-                // d1 = d1 + d1;
-                // self.$message({
-                //     showClose: true,
-                //     duration: 0,
-                //     type: 'error',
-                //     dangerouslyUseHTMLString: true,
-                //     message: '<div><strong>链码初始化上失败，失败原因: </strong><div contenteditable="true"  style="max-height: 300px; margin: 10px 10px;">' + d1 + '</div></div>'
-                // });
-                // return ''
                 if (this.initializeForm.chainCode == "") {
                     this.$message.error("请选择一个链码");
                     return;
                 }
-                // debugger;
                 var chainCodeData = this.initializeForm.chainCode.split("::");
                 var chainCodeName = chainCodeData[0];
                 var chainCodeVersion = chainCodeData[1];
@@ -357,30 +360,30 @@
                         "channelName": this.queryChannelName,
                         "chaincodeName": chainCodeName,
                         "chaincodeVersion": chainCodeVersion,
+                        "attachmentId": this.initializeForm.uploadInitId,
                     }
                 }).then(data => {
-                    // debugger;
                     self.initializeDialogLoading = false;
-                    if (data && data.success == true) {
-                        this.$message.success("初始化成功!");
-                        self.initDialogVisible = false;
-                        self.loadGridData();
-                    } else {
-                        self.$message({
-                            showClose: true,
-                            duration: 0,
-                            type: 'error',
-                            dangerouslyUseHTMLString: true,
-                            message: '<strong>链码初始化上失败，失败原因: <div style="max-height: 500px; overflow-y: auto;">' + data["errorInfo"]["errorMessage"] + '</div></strong>'
+                    this.$message.success("初始化成功!");
+                    self.initDialogVisible = false;
+                    self.loadGridData();
+                    self.resetInitDialog();
+                }, error => {
+                    self.initializeDialogLoading = false;
+                    if (error && error.data) {
+                        self.$alert({
+                            content:"初始化出错",
+                            errorData:error.data
                         });
                     }
                 });
             },
-            logDetail(row) {
-                return "/#/transactionLog?appId=fc77ec9e04c34c99afd277b1774d4a3e&channelName=mychannel&chainCodeName=test11";
-            },
             buildTitle() {
                 return "我的链/" + this.queryAppName + "/" + this.queryChannelName;
+            },
+            showErrorDialog2(){
+                //这里弹出dialog就额可以了\
+                this.$alert();
             }
         }
     }
@@ -391,6 +394,22 @@
     .table-container {
         margin: 20px;
     }
+</style>
+
+
+<style>
+    .errorInfo {
+        width: 100%;
+    }
+    .errorInfo li {
+        margin-bottom: 10px;
+    }
+    .errorInfo li span{
+        width:20%;
+        display: inline-block;
+        float: left;
+    }
+
 </style>
 
 

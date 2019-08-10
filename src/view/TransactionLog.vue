@@ -120,7 +120,7 @@
                         :show-overflow-tooltip="true">
                 </el-table-column>
                 <el-table-column
-                        prop="transactionStatus"
+                        prop="status"
                         label="交易状态"
                         :formatter="transactionStatusFormat">
                 </el-table-column>
@@ -130,7 +130,7 @@
                         width="120">
                 </el-table-column>
                 <el-table-column
-                        prop="blockStatus"
+                        prop="status"
                         label="上链状态"
                         :formatter="blockStatusFormat">
                 </el-table-column>
@@ -393,7 +393,7 @@
                     self.table1.loading = true;
                     self.$http({
                         method: 'get',
-                        url: '/transaction/logList',
+                        url: '/traceLog/logList',
                         data: {
                             appId: self.form1.appIdField.val,
                             channelName: self.form1.channelNameField.val,
@@ -420,9 +420,9 @@
                 this.detailDialog.visible = true;
                 this.$http({
                     method: 'get',
-                    url: '/transaction/getById',
+                    url: '/traceLog/getById',
                     data: {
-                        "transactionId": row["transactionId"],
+                        "traceId": row["traceId"],
                     }
                 }).then(data => {
                     $self.detailData = [
@@ -436,8 +436,8 @@
                         {"prop": "交易路径", "value": data.transactionPath},
                         {"prop": "交易请求参数", "value": data.transactionParameter},
                         {"prop": "交易返回结果", "value": data.transactionResponse},
-                        {"prop": "交易状态", "value": $self.getTransactionStatus(data.transactionStatus)},
-                        {"prop": "上链状态", "value": $self.getBlockStatus(data.transactionType, data.transactionStatus, data.blockStatus)},
+                        {"prop": "交易状态", "value": $self.getTransactionStatus(data.status)},
+                        {"prop": "上链状态", "value": $self.getBlockStatus(data.transactionType, data.status)},
                         {"prop": "区块高度", "value": data.blockNumber},
                         {"prop": "区块数据HASH", "value": data.dataHash},
                         {"prop": "区块HASH", "value": data.blockHash},
@@ -459,30 +459,30 @@
                 this.table1LoadData();
             },
             transactionStatusFormat(row, column, cellValue, index) {
-                return this.getTransactionStatus(cellValue);
+                return this.getTransactionStatus(row["status"]);
             },
-            getTransactionStatus(transactionStatus) {
-                return transactionStatus == true ? "交易成功" : "交易失败";
+            getTransactionStatus(status) {
+                if (status == 0) {
+                    return "交易失败"
+                } else {
+                    return "交易成功"
+                }
             },
             blockStatusFormat(row, column, cellValue, index) {
-                return this.getBlockStatus(row["transactionType"], row["transactionStatus"], cellValue);
+                return this.getBlockStatus(row["transactionType"], row["status"]);
             },
-            getBlockStatus(transactionType, transactionStatus, blockStatus){
+            getBlockStatus(transactionType, status){
                 if (transactionType == 'query'){
                     return "----";
                 }
-                if (transactionStatus == false) {
-                    return "----";
+                if (status == 1) {
+                    return "等待上链"
+                } else if (status == 3) {
+                    return "上链成功"
+                } else if (status == 2) {
+                    return "上链失败"
                 } else {
-                    if (blockStatus == 0) {
-                        return "等待上链"
-                    } else if (blockStatus == 1) {
-                        return "上链成功"
-                    } else if (blockStatus == 2) {
-                        return "上链失败"
-                    } else {
-                        return "----";
-                    }
+                    return "----";
                 }
             },
             onQuery() {
@@ -493,7 +493,7 @@
                 this.table1LoadData();
             },
             transactionStartTimeFormat(row, column, cellValue, index) {
-                return this.formatTime(cellValue, "yyyy-MM-dd hh:mm:ss.S")
+                return this.formatTime(cellValue, "yyyy-MM-dd hh:mm:ss")
             },
             resetForm(formName) {
                 this.$refs[formName].resetFields();
@@ -511,7 +511,7 @@
                 }
                 //debugger;
                 if(fmt == "" || fmt == null || fmt == undefined){
-                    fmt = "yyyy-MM-dd hh:mm:ss.S";
+                    fmt = "yyyy-MM-dd hh:mm:ss";
                 }
                 var o = {
                     "M+": date.getMonth() + 1,                 //月份

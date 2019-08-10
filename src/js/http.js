@@ -57,11 +57,12 @@ export function request(params) {
                 console.log(codeMessage[response.status] || `${code}: 请求失败`)
             }
         }).catch((error) => {
-            if (reject) {
-                reject(error)
-            } else {
-                this.$message.error(error.response.data.errorMessage);
-            }
+            var errorResponse = error.response;
+            reject(errorResponse);
+            // this.$alert({
+            //     content: "系统错误",
+            //     errorData:errorResponse.data
+            // });
         })
     })
 }

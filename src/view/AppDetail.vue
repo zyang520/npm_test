@@ -64,8 +64,20 @@
                 </el-table-column>
                 <el-table-column
                         prop="peers"
-                        :formatter="peers_format"
                         label="Peer节点">
+                    <template slot-scope="scope">
+                        <div>
+                            <el-popover trigger="hover" placement="top" style="float:left;margin-right: 20px;" v-for="item in scope.row.peers">
+                                <p><span style="width: 80px;display: inline-block">名称: </span>{{ item.name }}</p>
+                                <p><span style="width: 80px;display: inline-block">url: </span>{{ item.url }}</p>
+                                <p><span style="width: 80px;display: inline-block">区块高度: </span><span v-if="item.blockHeight > 0">{{ item.blockHeight }}</span><span v-else>----</span></p>
+                                <p><span style="width: 80px;display: inline-block">状态: </span><span v-if="item.enable == true">可用</span><span v-else>不可用</span></p>
+                                <div slot="reference" class="name-wrapper" >
+                                    <el-tag size="medium" :type="item.enable == true?'success':'danger'">{{ item.name }}</el-tag>
+                                </div>
+                            </el-popover>
+                        </div>
+                    </template>
                 </el-table-column>
             </el-table>
 

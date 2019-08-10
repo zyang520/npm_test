@@ -96,7 +96,7 @@ export default {
                 this.$router.push(this.$route.query.redirect || '/');
                 this.fullscreenLoading = false;
             }, error => {
-                this.$message.error(error.response.data.errorMessage);
+                this.$message.error(error.data.errorMessage);
                 this.fullscreenLoading = false;
             });
         }

@@ -9,6 +9,10 @@ import 'element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUI);
 Vue.use(Vuex)
 
+// 加载components
+import plugins from './plugins/index';
+Vue.use(plugins);
+
 import '@/css/common.css'
 import '@/css/base.css'
 import '@/css/fontawesome/font-awesome.min.css'
