@@ -71,23 +71,27 @@ export default {
     methods: {
         submitForm(formName) {
             const self = this;
-            var datas = {};
+            var userName = "";
+            var userPwd = "";
+            var checkPass = false;
             self.$refs[formName].validate(valid => {
                 if (valid) {
-                    var qs = require('qs');
-                    datas = {
-                        userName: self.ruleForm.username,
-                        userPwd: self.ruleForm.password
-                    };
-                    this.fullscreenLoading = true;
+                    checkPass = true;
                 }
-
             });
-
+            if (!checkPass) {
+              return;
+            }
+            userName = self.ruleForm.username;
+            userPwd = self.ruleForm.password;
+            this.fullscreenLoading = true;
             this.$http({
                 url:'/user/login',
                 method: "post",
-                data:datas
+                data:{
+                    userName: userName,
+                    userPwd: userPwd
+                }
             }).then(data => {
                 self.fullscreenLoading = false;
                 localStorage.setItem('userName', data.userName);

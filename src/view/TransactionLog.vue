@@ -2,72 +2,76 @@
     <div style="width:100%;height:100%;">
         <TitlePage title="日志中心" desc=""></TitlePage>
         <div class="table-container">
-            <el-form :inline="true" :model="form1" ref="form1" class="demo-form-inline">
-                <el-form-item label="交易日期" prop="timeField">
-                    <el-date-picker
-                            v-model="form1.timeField"
-                            align="right"
-                            type="date"
-                            :clearable="false"
-                            placeholder="选择日期"
-                            :picker-options="pickerOptions21">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="连接" prop="appIdField.val">
-                    <el-select v-model="form1.appIdField.val" @change="appIdFieldChange" clearable placeholder="所属连接">
-                        <el-option
-                                v-for="item in form1.appIdField.options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="通道" prop="channelNameField.val">
-                    <el-select v-model="form1.channelNameField.val" @change="channelNameFieldChange" clearable
-                               placeholder="所属通道">
-                        <el-option
-                                v-for="item in form1.channelNameField.options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="链码" prop="chainCodeIdField.val">
-                    <el-select v-model="form1.chainCodeIdField.val" clearable filterable placeholder="所属链码">
-                        <el-option
-                                v-for="item in form1.chainCodeIdField.options"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="交易类型" prop="methodField.val">
-                    <el-select v-model="form1.methodField.val" placeholder="交易类型">
-                        <el-option label="所有" value=""></el-option>
-                        <el-option label="交易" value="invoke"></el-option>
-                        <el-option label="查询" value="query"></el-option>
-                    </el-select>
-                </el-form-item>
-                <br/>
-                <el-form-item label="交易结果" prop="statusField.val">
-                    <el-select v-model="form1.statusField.val" placeholder="交易结果">
-                        <el-option label="所有" value=""></el-option>
-                        <el-option label="成功" value="success"></el-option>
-                        <el-option label="失败" value="failure"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="交易ID" prop="transactionIdField">
-                    <el-input v-model="form1.transactionIdField" placeholder="交易ID" clearable>
-                    </el-input>
-                </el-form-item>
-                <el-form-item>
+            <div style="width: 100%;">
+                <div class="left"  style="float: left;width: 82%;">
+                    <el-form :inline="true" :model="form1" ref="form1" class="demo-form-inline">
+                        <el-form-item label="交易日期" prop="timeField" style="width:300px;" label-width="80px">
+                            <el-date-picker
+                                    v-model="form1.timeField"
+                                    align="right"
+                                    type="date"
+                                    :clearable="false"
+                                    placeholder="选择日期"
+                                    :picker-options="pickerOptions21">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="连接" prop="appIdField.val" style="width:300px;" label-width="80px">
+                            <el-select v-model="form1.appIdField.val" @change="appIdFieldChange" clearable placeholder="所属连接">
+                                <el-option
+                                        v-for="item in form1.appIdField.options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="通道" prop="channelNameField.val" style="width:300px;" label-width="80px">
+                            <el-select v-model="form1.channelNameField.val" @change="channelNameFieldChange" clearable
+                                       placeholder="所属通道">
+                                <el-option
+                                        v-for="item in form1.channelNameField.options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="链码" prop="chainCodeIdField.val" style="width:300px;" label-width="80px">
+                            <el-select v-model="form1.chainCodeIdField.val" clearable filterable placeholder="所属链码">
+                                <el-option
+                                        v-for="item in form1.chainCodeIdField.options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="交易类型" prop="methodField.val" style="width:300px;" label-width="80px">
+                            <el-select v-model="form1.methodField.val" placeholder="交易类型">
+                                <el-option label="所有" value=""></el-option>
+                                <el-option label="交易" value="invoke"></el-option>
+                                <el-option label="查询" value="query"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="交易结果" prop="statusField.val" style="width:300px;" label-width="80px">
+                            <el-select v-model="form1.statusField.val" placeholder="交易结果">
+                                <el-option label="所有" value=""></el-option>
+                                <el-option label="成功" value="success"></el-option>
+                                <el-option label="失败" value="failure"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="交易ID" prop="transactionIdField" style="width:300px;" label-width="80px">
+                            <el-input v-model="form1.transactionIdField" placeholder="交易ID" clearable>
+                            </el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div class="right" style="float: left;width: 160px;">
                     <el-button type="primary" @click="onQuery">查询</el-button>
                     <el-button @click="resetForm('form1')">重置</el-button>
-                </el-form-item>
-            </el-form>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
             <el-table
                     :data="table1.records"
                     border
@@ -112,7 +116,8 @@
                 <el-table-column
                         prop="transactionType"
                         label="交易类型"
-                        :show-overflow-tooltip="true">
+                        :show-overflow-tooltip="true"
+                        :formatter="transactionTypeFormat">
                 </el-table-column>
                 <el-table-column
                         prop="transactionPath"
@@ -250,7 +255,6 @@
                 createDialogVisible: false,
                 uploadDialogVisible: false,
                 bpi: false,
-                formLabelWidth: '120px',
                 pickerOptions21: {
                     disabledDate(time) {
                         return time.getTime() > Date.now();
@@ -430,9 +434,9 @@
                         {"prop": "交易发起时间", "value": $self.formatTime(data.transactionStartTime)},
                         {"prop": "连接名称", "value": appName},
                         {"prop": "通道名称", "value": data.channelName},
-                        {"prop": "组织msp", "value": data.transactionOrgMsp},
+                        {"prop": "发起组织", "value": data.transactionOrgMsp},
                         {"prop": "链码名称", "value": data.chainCodeName},
-                        {"prop": "交易方式", "value": data.transactionType},
+                        {"prop": "交易类型", "value": $self.transactionTypeFormat2(data.transactionType)},
                         {"prop": "交易路径", "value": data.transactionPath},
                         {"prop": "交易请求参数", "value": data.transactionParameter},
                         {"prop": "交易返回结果", "value": data.transactionResponse},
@@ -442,7 +446,7 @@
                         {"prop": "区块数据HASH", "value": data.dataHash},
                         {"prop": "区块HASH", "value": data.blockHash},
                         {"prop": "父区块HASH", "value": data.previousHash},
-                        {"prop": "交易时间戳", "value": $self.formatTime(data.timeStamp)},
+                        {"prop": "交易时间戳", "value": data.timeStamp},
                     ];
                     if(!!data.blockRecordFailResponse){
                         $self.detailData.push({"prop": "上链失败原因", "value": data.blockRecordFailResponse});
@@ -490,14 +494,28 @@
                     this.$message('请输入时间信息');
                     return;
                 }
+                this.table1.current = 1;
+                this.table1.size = 10;
                 this.table1LoadData();
             },
             transactionStartTimeFormat(row, column, cellValue, index) {
                 return this.formatTime(cellValue, "yyyy-MM-dd hh:mm:ss")
             },
+            transactionTypeFormat(row, column, cellValue, index) {
+                return this.transactionTypeFormat2(cellValue);
+            },
+            transactionTypeFormat2(val){
+                if (val == "invoke") {
+                    return '交易';
+                } else if (val == "query") {
+                    return '查询';
+                } else {
+                    return "----";
+                }
+            },
             resetForm(formName) {
                 this.$refs[formName].resetFields();
-                this.appIdFieldLoadData(this.table1LoadData);
+                //this.appIdFieldLoadData(this.table1LoadData);
             },
             formatTime(dt, fmt) {
                 if(dt == "" || dt == null || dt == undefined){

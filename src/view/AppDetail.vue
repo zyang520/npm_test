@@ -51,10 +51,10 @@
                         prop="channelName"
                         label="通道名称"
                         width="180">
-                    <template slot-scope="scope">
-                        <el-button type="text" size="small" @click="handleAppLink(scope.row)">{{scope.row.channelName}}
-                        </el-button>
-                    </template>
+                    <!--<template slot-scope="scope">-->
+                        <!--<el-button type="text" size="small" @click="handleAppLink(scope.row)">{{scope.row.channelName}}-->
+                        <!--</el-button>-->
+                    <!--</template>-->
                 </el-table-column>
                 <el-table-column
                         prop="orderers"
@@ -67,7 +67,7 @@
                         label="Peer节点">
                     <template slot-scope="scope">
                         <div>
-                            <el-popover trigger="hover" placement="top" style="float:left;margin-right: 20px;" v-for="item in scope.row.peers">
+                            <el-popover trigger="hover" placement="top" style="float:left;margin-right: 8px;margin-bottom:8px;" v-for="item in scope.row.peers">
                                 <p><span style="width: 80px;display: inline-block">名称: </span>{{ item.name }}</p>
                                 <p><span style="width: 80px;display: inline-block">url: </span>{{ item.url }}</p>
                                 <p><span style="width: 80px;display: inline-block">区块高度: </span><span v-if="item.blockHeight > 0">{{ item.blockHeight }}</span><span v-else>----</span></p>
@@ -77,6 +77,16 @@
                                 </div>
                             </el-popover>
                         </div>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        prop="resetUrl"
+                        label="操作"
+                        width="200"
+                >
+                    <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="handleAppLink(scope.row)">链码列表</el-button>
+                        <a target="_blank" :href="scope.row.resetUrl" style="color: #409EFF; height: 32px;display: inline-block;line-height: 32px;font-size: 12px;"><span>通道接口</span></a>
                     </template>
                 </el-table-column>
             </el-table>
@@ -139,6 +149,8 @@
                 this.detailData.lastUpdateTime = data.lastUpdateTime;
                 this.detailData.clientOrg = data.clientOrg;
             });
+            this.currentPage = 1;
+            this.pageSize = 10;
             this.loadChannelData();
         },
         methods: {

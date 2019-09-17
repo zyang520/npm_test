@@ -169,6 +169,8 @@
         },
         activated: function () {
             this.$store.commit('setActiveMenuIndex', "1");
+            this.currentPage = 1;
+            this.pageSize = 10;
             this.loadData();
         },
         methods: {
@@ -198,7 +200,6 @@
                     url: '/app/list'
                 }).then(data => {
                     self.gridLoading = false;
-                    // console.log(data);
                     self.tableData = data;
                 });
             },
@@ -248,7 +249,6 @@
                         "attachmentId": attachId,
                     }
                 }).then(data => {
-                    // console.log(data);
                     self.$message.success('创建链连接成功');
                     self.createLink.dialogVisible = false;
                     self.loadData();

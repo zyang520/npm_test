@@ -39,10 +39,10 @@
                         label="操作"
                 >
                     <template slot-scope="scope">
-                        <a target="_blank" :href="scope.row.resetUrl" style="color: #409EFF; height: 32px;display: inline-block;line-height: 32px;font-size: 12px;"><span>访问接口</span></a>
+                        <a target="_blank" :href="scope.row.resetUrl" style="color: #409EFF; height: 32px;display: inline-block;line-height: 32px;font-size: 12px;"><span>链码接口</span></a>
                         <router-link tag="a" target="_blank" style="color: #409EFF; height: 32px;display: inline-block;line-height: 32px;font-size: 12px;"
                                      :to="{name:'transactionLog',query:{appId: queryAppId,channelName: queryChannelName,chainCodeName: scope.row.chainCodeName}}">
-                            <span>日志查询</span>
+                            <span>访问日志</span>
                         </router-link>
                     </template>
                 </el-table-column>
@@ -56,8 +56,8 @@
             </div>
 
             <el-dialog title="安装链码" :visible.sync="installDialogVisible" :before-close="resetUploadDialog">
-                <el-form :model="installForm" ref="installForm1">
-                    <el-form-item label="选择Peer节点" :label-width="formLabelWidth" prop="peers">
+                <el-form :model="installForm" :rules="installFormRules" ref="installForm1">
+                    <el-form-item label="选择Peer节点" :label-width="formLabelWidth" prop="peers" style="margin-bottom: 30px;">
                         <el-select
                                 v-model="installForm.peers"
                                 multiple
@@ -73,28 +73,28 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="链码名称" :label-width="formLabelWidth" prop="name">
+                    <el-form-item label="链码名称" :label-width="formLabelWidth" prop="name" style="margin-bottom: 30px;">
                         <el-input v-model="installForm.name" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="链码版本" :label-width="formLabelWidth" prop="version">
+                    <el-form-item label="链码版本" :label-width="formLabelWidth" prop="version" style="margin-bottom: 30px;">
                         <el-input v-model="installForm.version" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="链码文件" :label-width="formLabelWidth">
+                    <el-form-item label="链码文件" :label-width="formLabelWidth" prop="uploadInstallId">
                         <el-upload
                                 class="upload-demo"
                                 ref="uploadInstallField"
                                 name="file"
-                                drag
+                                dragname
                                 :data="uploadInstallExtraData"
                                 :action="uploadUrl()"
                                 multiple
                                 :on-success="uploadInstallSuccess"
+                                :on-remove="uploadInstallRemove"
                                 :auto-upload="true"
                                 :limit="fileListLimit"
                         >
-                            <i class="el-icon-upload"></i>
-                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                            <div class="el-upload__tip" slot="tip">只能上传.gzip文件，且不超过100M</div>
+                            <el-button size="small" type="primary">点击上传</el-button>
+                            <div slot="tip" class="el-upload__tip">只能上传gzip文件，且不超过4M</div>
                         </el-upload>
                     </el-form-item>
                 </el-form>
@@ -187,6 +187,14 @@
                     version: "",
                     uploadInstallId: null
                 },
+                installFormRules: {
+                    uploadInstallId: [{required: true, message: '请上传文件', trigger: 'change'}],
+                    peers: [{required: true, message: '请选择节点', trigger: 'change'}],
+                    name: [{required: true, message: '请输入链码名称', trigger: 'blur'},
+                        {pattern: /^(\w){2,20}$/, message: '只能输入2-20个字母、数字、下划线，并且只能以数字或字母开头', trigger: 'blur'}],
+                    version: [{required: true, message: '请输入链码版本', trigger: 'blur'},
+                        {pattern:/^v\d{1,3}\.\d{1,3}\.\d{1,3}$/, message:'版本号格式为v1.1.1', trigger: 'blur'}]
+                },
                 initializeForm: {
                     chainCode: "",
                     uploadInitId: null
@@ -210,6 +218,8 @@
             this.queryAppName = this.$route.query.appName;
             this.queryChannelName = this.$route.query.channelName;
             let self = this;
+            this.currentPage = 1;
+            this.pageSize = 10;
             this.loadGridData();
             this.$http({
                 method: 'get',
@@ -270,6 +280,9 @@
                     this.$refs.uploadInstallField.clearFiles();
                 }
             },
+            uploadInstallRemove(file, fileList) {
+                this.installForm.uploadInstallId = null;
+            },
             uploadInitSuccess(response, file, fileList) {
                 if (!!response.id) {
                     this.initializeForm.uploadInitId= response.id;
@@ -281,6 +294,15 @@
             },
             chainCodeSubmit() {
                 var self = this;
+                var checkPass = false;
+                self.$refs['installForm1'].validate(valid => {
+                    if (valid) {
+                        checkPass = true;
+                    }
+                });
+                if (!checkPass) {
+                    return;
+                }
                 this.$http({
                     method: 'post',
                     url: '/chaincode/installJava',
